@@ -21,7 +21,7 @@ public:
     }
 
     inline void remove_attribute(int _attr) {
-        attr ^= _attr;
+        attr &= ~_attr;
     }
 
     inline size_t type_size() const {

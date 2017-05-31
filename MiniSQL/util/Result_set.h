@@ -11,7 +11,7 @@
 #include "Type_value.h"
 
 class Result_set {
-    friend class Buffer_manager;
+    friend class Record_manager;
 public:
     Result_set() {
 

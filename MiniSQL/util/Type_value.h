@@ -18,7 +18,10 @@ public:
         switch (_type_name){
             case Type_name::INT     : value.integer = (int)(*data); break;
             case Type_name::FLOAT   : value.ff = (double)(*data); break;
-            case Type_name::CHAR    : strncpy(value.cc, data, _size); break;
+            case Type_name::CHAR    :
+                strncpy(value.cc, data, _size);
+                value.cc[_size] = 0;
+                break;
         }
     }
 
@@ -40,7 +43,8 @@ public:
         switch (type_value._type_name){
             case Type_name ::INT    : out << type_value.value.integer; break;
             case Type_name ::FLOAT  : out << type_value.value.ff; break;
-            case Type_name ::CHAR   : out << std::string(type_value.value.cc); break;
+            case Type_name ::CHAR   :
+                out << std::string(type_value.value.cc); break;
         }
         return out;
 
@@ -65,27 +69,14 @@ private:
                 sscanf(a, "%lf",  &value.ff);
                 break;
             case Type_name::CHAR :
-                std::string str = fix(value_str);
-                strcpy(a, str.c_str());
-                if(str.size() > _size){
-                    throw Parse_error("too long char values for " + str);
+                strcpy(a, value_str.c_str());
+                if(value_str.size() > _size){
+                    throw Parse_error("too long char values for " + value_str);
                 }
                 sscanf(a, "%s",  value.cc);
                 break;
 
         }
-    }
-
-    /**
-     * rid the string of quotation marks
-     * */
-    std::string fix(const std::string& str){
-        size_t begin = 0, end = str.size() - 1;
-        while(begin <= end && str[begin] <= ' ') begin++;
-        while(begin <= end && str[end] <= ' ') end--;
-        if(begin < end && str[begin] == str[end] && (str[begin] == '\'' || str[begin] == '\"'))
-            return str.substr(begin + 1, end - 1);
-        else return str.substr(begin, end + 1);
     }
 };
 

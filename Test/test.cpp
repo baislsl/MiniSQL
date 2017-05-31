@@ -5,6 +5,7 @@
 #include "../MiniSQL/catalog/Catalog_manager.h"
 #include "../MiniSQL/util/Type_value.h"
 #include "../MiniSQL/Interpreter/Interpreter.h"
+#include "../MiniSQL/buffer/Buffer_manager.h"
 #include <fstream>
 
 void test(){
@@ -12,7 +13,6 @@ void test(){
         Catalog_manager cata("../Test/cata.xml");
         vector<string> input;
         cata.read_menu_titles(input);
-        cata.read_menu_items("table1", input);
         for(std::string pp : input){
             cout << pp << std::endl;
         }
@@ -61,10 +61,17 @@ void intpre_test(){
     Interpreter interpreter(in, std::cout);
 }
 
-int main(){
+void hash_test(){
     cout << sizeof(double) << endl;
     // file_IO();
-     // file_IO2();
-    intpre_test();
+    // file_IO2();
+    // intpre_test();
+//    cout << Buffer_manager::hash("gg");
+//    cout << Buffer_manager::hash("bai");
+//    cout << Buffer_manager::hash("baislsl");
+}
 
+int main(){
+
+    intpre_test();
 }

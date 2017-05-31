@@ -17,10 +17,12 @@ using boost::property_tree::ptree;
 class Catalog_manager {
 public:
     Catalog_manager(const std::string &_filename) : filename(_filename) {
+        ptree pt;
         read_xml(filename, pt);
         BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.table.list")) {
                         Table table;
                         table.table_name = list.second.get<std::string>("name");
+                        table.row_number = list.second.get<int>("size");
                         size_t block_size = list.second.get<size_t>("block");
                         BOOST_FOREACH(const ptree::value_type &item, list.second.get_child("attribute")) {
                                         std::string column_name = std::move(item.second.data());
@@ -37,24 +39,17 @@ public:
     }
 
     ~Catalog_manager() {
+        ptree pt;
+        generate_ptree(pt);
         write_xml(filename, pt);
     };
 
     void read_menu_titles(std::vector<std::string> &result) const {
         // std::cout << pt.get<std::string>("minisql.table.list.tb.name");
-        BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.table.list")) {
-                        result.push_back(list.second.get<std::string>("name"));
-                    }
-    }
-
-    void read_menu_items(const std::string &menu_title, std::vector<std::string> &result) const {
-        BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.table.list")) {
-                        if (list.second.get<std::string>("name") == menu_title) {
-                            BOOST_FOREACH(const ptree::value_type &item, list.second.get_child("attribute")) {
-                                            result.push_back(item.second.data());
-                                        }
-                        }
-                    }
+        result.clear();
+        for(auto &value : table_map){
+            result.push_back(value.first);
+        }
     }
 
     void create_table(const Table &table) {
@@ -62,21 +57,28 @@ public:
             throw Conflict_error("duplicate table name for " + table.name());
         if (table_column_duplicate(table))
             throw Conflict_error("duplicate column name in table " + table.name());
-        ptree p_table;
-        size_t block_size = 0;
-        p_table.put("name", table.name());
-        p_table.put("block", table.get_block_size());
-        ptree col_list;
-        for (const Column &column : table.value_list) {
-            ptree col;
-            col.put("", column.name);
-            col.put("<xmlattr>.type", column.get_type_name());
-            col.put("<xmlattr>.attr", column.attr);
-            col.put("<xmlattr>.size", column.type_size());
-            p_table.add_child("attribute.col", col);
-        }
-        pt.add_child("minisql.table.list.tb", p_table);
         table_map[table.table_name] = table;
+    }
+
+    void generate_ptree(ptree& pt){
+        for(auto &value : table_map){
+            const Table& table = value.second;
+            ptree p_table;
+            size_t block_size = 0;
+            p_table.put("name", table.name());
+            p_table.put("block", table.get_block_size());
+            p_table.put("size", table.get_row_number());
+            ptree col_list;
+            for (const Column &column : table.value_list) {
+                ptree col;
+                col.put("", column.name);
+                col.put("<xmlattr>.type", column.get_type_name());
+                col.put("<xmlattr>.attr", column.attr);
+                col.put("<xmlattr>.size", column.type_size());
+                p_table.add_child("attribute.col", col);
+            }
+            pt.add_child("minisql.table.list.tb", p_table);
+        }
     }
 
 
@@ -91,6 +93,9 @@ public:
         return table_map[table_name].get_table_column(columns, selects);
     }
 
+    inline void add_table_row(const std::string &table_name){
+        table_map[table_name].row_number += 1;
+    }
 
     inline void get_table_type_infos(const std::string &table_name,
                                      std::vector<Type_info> &type_infos) {
@@ -107,7 +112,7 @@ public:
     }
 
 private:
-    ptree pt;
+//    ptree pt;
     const std::string filename;
     std::map<std::string, Table> table_map;
 

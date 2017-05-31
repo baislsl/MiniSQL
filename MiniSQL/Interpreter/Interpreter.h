@@ -87,6 +87,9 @@ private:
     void insert_table(const std::string &table_name, const std::string& command){
         std::vector<std::string> items;
         string_spilt(command, items);
+        for(std::string &str : items){
+            str = fix(str);
+        }
         std::vector<Condition> conditions;
         api.insert_table(table_name, items);
     }
@@ -159,7 +162,7 @@ private:
         return str.substr(begin, end + 1 - begin);
     }
 
-    // split the string by ';'
+    // split the string by ','
     static void string_spilt(std::string str, std::vector<std::string> &result) {
         size_t pos;
         result.clear();
@@ -181,6 +184,17 @@ private:
             }
         }
         return str;
+    }
+
+    /**
+     * rid the string of quotation marks
+     * */
+    std::string fix(std::string str){
+        str = string_trim(str);
+        size_t end = str.size() - 1;
+        if(str[0] == str[end] && (str[0] == '\'' || str[0] == '\"'))
+            return str.substr(1, end - 1);
+        else return str.substr(0, end + 1);
     }
 };
 

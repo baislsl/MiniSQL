@@ -13,8 +13,8 @@
 
 class API {
 public:
-    API():buffer_manager(),
-          catalog("../Test/cata.xml"),
+    API():catalog("../Test/cata.xml"),
+          buffer_manager(),
           record_manager(buffer_manager){
     }
 
@@ -25,6 +25,7 @@ public:
     void insert_table(const std::string &table_name, const std::vector<std::string> &items){
         std::vector<Type_info> type_infos;
         catalog.get_table_type_infos(table_name, type_infos);
+        catalog.add_table_row(table_name);
         record_manager.insert_table(table_name, type_infos ,items);
     }
 
@@ -45,8 +46,8 @@ public:
 
 private:
     Catalog_manager catalog;
+    Buffer_manager  buffer_manager;
     Record_manager record_manager;
-    Buffer_manager buffer_manager;
 
 };
 

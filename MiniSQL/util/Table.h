@@ -40,6 +40,10 @@ public:
         return table_name;
     }
 
+    inline size_t get_row_number()const{
+        return row_number;
+    }
+
     void add_column_attribute(const std::string &column_name, int attr) {
         for (Column column : value_list) {
             if (column.name == column_name) {
@@ -107,6 +111,7 @@ public:
 
 private:
     size_t block_size = 0;
+    size_t row_number = 0;
     std::string table_name;
     std::vector<Column> value_list;
 };
