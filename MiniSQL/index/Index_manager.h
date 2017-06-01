@@ -5,9 +5,7 @@
 #ifndef MINISQL_INDEX_MANAGER_H
 #define MINISQL_INDEX_MANAGER_H
 
-
 class Index_manager {
-
 };
 
 

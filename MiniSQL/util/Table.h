@@ -11,6 +11,7 @@
 #include "Type_name.h"
 #include "Column.h"
 #include "../Interpreter/Error.h"
+#include "Condition.h"
 
 
 class Table {
@@ -55,8 +56,16 @@ public:
     }
 
 
-    void get_offset(const std::vector<std::string> &selects,
-                    std::vector<size_t> &offsets) const {
+    std::vector<size_t> get_offset(const std::vector<Condition> &conditions) const{
+        std::vector<std::string> selects;
+        for(const Condition &condition : conditions){
+            selects.push_back(condition.name());
+        }
+        return get_offset(selects);
+    }
+
+    std::vector<size_t> get_offset(const std::vector<std::string> &selects) const {
+        std::vector<size_t> offsets;
         size_t  offset = 0;
         for (const Column &column : value_list) {
             std::string name = column.name;
@@ -65,47 +74,58 @@ public:
             }
             offset += column.size();
         }
+        return offsets;
     }
 
-    inline void get_table_column(std::vector<Column> &columns) const {
-        columns.clear();
+    inline std::vector<Column> get_table_column() const {
+        std::vector<Column> columns;
         columns = value_list;
+        return columns;
     }
 
-    inline void get_table_column(std::vector<Column> &columns,
-                                 const std::vector<std::string> &selects) const {
+    inline std::vector<Column> get_table_column(const std::vector<std::string> &selects) const {
         if (selects.empty()) {
-            get_table_column(columns);
+            return get_table_column();
         } else {
-            columns.clear();
+            std::vector<Column> columns;
             for (const Column &column : value_list) {
                 std::string name = column.name;
                 if (std::find(selects.begin(), selects.end(), name) != selects.end()) {
                     columns.push_back(column);
                 }
             }
+            return columns;
         }
     }
 
-    void get_table_type_infos(std::vector<Type_info> &type_infos) const {
-        type_infos.clear();
+    const Type_info get_column_info(const std::string &table_name) const {
+        for(const Column &column : value_list){
+            if(column.name == table_name){
+                return column.value_type();
+            }
+        }
+    }
+
+    std::vector<Type_info> get_table_type_infos() const {
+        std::vector<Type_info> type_infos;
         for (const Column &column : value_list) {
             type_infos.push_back(column.value_type());
         }
+        return type_infos;
     }
 
-    void get_table_type_infos(std::vector<Type_info> &type_infos,
-                              const std::vector<std::string> &selects) const {
+    std::vector<Type_info> get_table_type_infos(const std::vector<std::string> &selects) const {
         if (selects.empty()) {
-            get_table_type_infos(type_infos);
+            return get_table_type_infos();
         } else {
-            type_infos.clear();
+            std::vector<Type_info> type_infos;
             for (const Column &column : value_list) {
                 std::string name = column.name;
                 if (std::find(selects.begin(), selects.end(), name) != selects.end()) {
                     type_infos.push_back(column.value_type());
                 }
             }
+            return type_infos;
         }
     }
 

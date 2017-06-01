@@ -23,10 +23,8 @@ public:
     }
 
     void insert_table(const std::string &table_name, const std::vector<std::string> &items){
-        std::vector<Type_info> type_infos;
-        catalog.get_table_type_infos(table_name, type_infos);
-        catalog.add_table_row(table_name);
-        record_manager.insert_table(table_name, type_infos ,items);
+        Table table = std::move(catalog.get_table_handler(table_name));
+        record_manager.insert_table(table, items);
     }
 
     /**
@@ -39,10 +37,12 @@ public:
      * */
     Result_set select_table(const std::string &table_name,
                             const std::vector<std::string> &selects,
-                            const std::vector<Condition> &conditions){
+                            std::vector<Condition> &conditions ){
         Table table = catalog.get_table_handler(table_name);
         return record_manager.select_table(table, selects,  conditions);
     }
+
+
 
 private:
     Catalog_manager catalog;

@@ -82,15 +82,13 @@ public:
     }
 
 
-    inline void get_table_columns(const std::string &table_name,
-                                  std::vector<Column> &columns){
-        return table_map[table_name].get_table_column(columns);
+    inline std::vector<Column> get_table_columns(const std::string &table_name){
+        return table_map[table_name].get_table_column();
     }
 
-    inline void get_table_columns(const std::string &table_name,
-                                  std::vector<Column> &columns,
-                                  const std::vector<std::string> &selects){
-        return table_map[table_name].get_table_column(columns, selects);
+    inline std::vector<Column> get_table_columns(
+            const std::string &table_name, const std::vector<std::string> &selects){
+        return table_map[table_name].get_table_column(selects);
     }
 
     inline void add_table_row(const std::string &table_name){
@@ -99,13 +97,12 @@ public:
 
     inline void get_table_type_infos(const std::string &table_name,
                                      std::vector<Type_info> &type_infos) {
-        table_map[table_name].get_table_type_infos(type_infos);
+        table_map[table_name].get_table_type_infos();
     }
 
-    inline void get_table_type_infos(const std::string &table_name,
-                                     std::vector<Type_info> &type_infos,
-                                     const std::vector<std::string> &selects){
-        table_map[table_name].get_table_type_infos(type_infos, selects);
+    inline std::vector<Type_info> get_table_type_infos(
+            const std::string &table_name, const std::vector<std::string> &selects){
+        return table_map[table_name].get_table_type_infos(selects);
     }
     inline Table get_table_handler(const std::string &table_name){
         return table_map[table_name];

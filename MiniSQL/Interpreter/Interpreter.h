@@ -52,13 +52,15 @@ private:
     const std::string create_table_ptn = "\\s*create[\\s+]table[\\s+]([[:alnum:]]+)[\\s*]\\((.*)\\)";
     const std::string primary_key_ptn = "\\s*primary[\\s+]key[\\s*]\\((.*)\\)";
     const std::string insert_ptn = "\\s*insert[\\s+]into[\\s+]([[:alnum:]]+)[\\s+]values[\\s*]\\((.*)\\)";
-    const std::string select_ptn = "\\s*select\\s(.+)[\\s]from\\s([[:alnum:]]+)\\s*[where\\strue\\s*]?";
+    const std::string select_condition_ptn = "\\s*select\\s(.+)[\\s]from\\s([[:alnum:]]+)\\s*where[\\s+](.*)";
+    const std::string select_ptn = "\\s*select\\s(.+)[\\s]from\\s([[:alnum:]]+)\\s*";
 
     void run(const std::string &command) {
         std::smatch m;
         std::regex e_table(create_table_ptn, std::regex::icase);
         std::regex e_insert(insert_ptn, std::regex::icase);
         std::regex e_select(select_ptn, std::regex::icase);
+        std::regex e_select_condition(select_condition_ptn, std::regex::icase);
 //        out << "cmd=" << command << std::endl;
 //        out << "create_table_regex=" << create_table_ptn << std::endl;
         if (std::regex_match(command, m, e_table)) {
@@ -74,11 +76,31 @@ private:
             std::cout << m.str(1) << "|" << m.str(2) << std::endl;
             std::string selections = string_trim(m.str(1));
             vector<std::string> selects;
-            vector<Condition> conditoins;
+            vector<Condition> conditions; // no fill, always true condition
             if(selections != "*"){
                 string_spilt(selections, selects);
             }
-            out << api.select_table(m.str(2), selects, conditoins);
+            out << api.select_table(m.str(2), selects, conditions);
+        }else if(std::regex_match(command, m, e_select_condition)){
+            std::cout << m.str(1) << "|" << m.str(2) << "|" << m.str(3) << std::endl;
+            std::string selections = string_trim(m.str(1));
+            vector<std::string> selects;
+            if(selections != "*"){
+                string_spilt(selections, selects);
+            }
+            vector<Condition> conditions; // no fill, always true condition
+            std::string condition_query = m.str(3);
+            size_t pos;
+            while(pos = condition_query.find("and"), pos != std::string::npos){
+                if(condition_query[pos + 3] > ' '){
+                    throw Parse_error("Syntax error in condition sets " + m.str(3));
+                }
+                std::string str = condition_query.substr(0, pos);
+                conditions.push_back(get_condition(str));
+                condition_query = condition_query.substr(pos + 4);
+            }
+            conditions.push_back(get_condition(condition_query));
+            out << api.select_table(m.str(2), selects, conditions);
         }else{
             throw Parse_error("syntax in " + command);
         }
@@ -184,6 +206,45 @@ private:
             }
         }
         return str;
+    }
+
+    Condition get_condition(const std::string &condition_query){
+        vector<std::string> split = string_cmp_split(condition_query);
+        if(split.size() != 3)
+            throw Parse_error("Illegal comparision form as" + condition_query);
+        return Condition(split[0], split[1], fix(split[2]));
+    }
+
+    static std::vector<std::string> string_cmp_split(const std::string &str){
+        static char a[] = {'<', '>', '='};
+        size_t op_position = str.find('<');
+        if(op_position == std::string::npos){
+            op_position = str.find('>');
+            if(op_position == std::string::npos){
+                op_position = str.find('=');
+                if(op_position == std::string::npos){
+                    throw Parse_error("Illegal comparision sets as " + str);
+                }
+            }
+        }
+        std::string op;
+        if(str[op_position + 1] <= ' '){
+            op = str.substr(op_position, 1);
+        }else{
+            op = str.substr(op_position, 2);
+        }
+
+        std::string condition_split = "\\s*([[:alnum:]]+)\\s*[<|>|<=|>=|=|==]\\s*(.*)\\s*";
+        std::regex e_split(condition_split, std::regex::icase);
+        std::smatch m;
+        if(!std::regex_match(str, m, e_split)){
+            throw Parse_error("");
+        }
+        vector<std::string> result;
+        result.push_back(m.str(1));
+        result.push_back(op);
+        result.push_back(m.str(2));
+        return result;
     }
 
     /**

@@ -8,6 +8,8 @@
 #include "Type_name.h"
 #include <cstring>
 #include <iostream>
+#include <cmath>
+#include <values.h>
 // with value
 class Type_value : public Type_info{
 
@@ -35,8 +37,51 @@ public:
         parse_value(value_str);
     }
 
+    inline Type_info type_info() const {
+        return Type_info(_type_name, _size);
+    }
+
     inline char* data() const {
         return (char*)(&value);
+    }
+
+    friend bool operator<(const Type_value &a, const Type_value &b){
+        if(a._type_name != b._type_name)
+            throw Data_error("Can no compare data with different type!");
+        switch (a._type_name){
+            case Type_name::INT:
+                return a.value.integer < b.value.integer;
+            case Type_name::FLOAT:
+                return a.value.ff < b.value.ff;
+            case Type_name::CHAR:
+                return a.value.cc < b.value.cc;
+        }
+    }
+
+    friend bool operator==(const Type_value &a, const Type_value &b){
+        if(a._type_name != b._type_name)
+            throw Data_error("Can no compare data with different type!");
+        switch (a._type_name){
+            case Type_name::INT:
+                return a.value.integer == b.value.integer;
+            case Type_name::FLOAT:
+                return fabs(a.value.ff - b.value.ff) <= DBL_MIN;
+            case Type_name::CHAR:
+                return a.value.cc == b.value.cc;
+        }
+    }
+
+    friend bool operator>(const Type_value &a, const Type_value &b){
+        return b < a;
+    }
+    friend bool operator<=(const Type_value &a, const Type_value &b){
+        return !(b < a);
+    }
+    friend bool operator>=(const Type_value &a, const Type_value &b){
+        return !(b < a);
+    }
+    friend bool operator!=(const Type_value &a, const Type_value &b){
+        return !(a == b);
     }
 
     friend std::ostream &operator<<(std::ostream &out, const Type_value &type_value) {
