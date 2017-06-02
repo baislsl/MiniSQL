@@ -4,6 +4,8 @@
 
 #include "Type_info.h"
 
+Type_info::Type_info() :_size(0){}
+
 Type_info::Type_info(std::string type_name, size_t size) {
     if(type_name == "int"){
         _type_name = Type_name::INT;
@@ -38,3 +40,4 @@ std::string Type_info::get_type_name() const {
         case Type_name::CHAR   : return "char";
     }
 }
+

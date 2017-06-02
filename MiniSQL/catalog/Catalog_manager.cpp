@@ -21,9 +21,15 @@ Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filen
                                     Type_info type_info(type_str, size);
                                     Column column(column_name, type_info, attr);
                                     table.add_column(column);
-                                    std::cout << "type = " << type_info.get_type_name() << size << std::endl;
                                 }
                     table_map[table.table_name] = table;
+                }
+    BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.index.list")) {
+                    Index index;
+                    index.table_name = list.second.get<std::string>("table");
+                    index.column_name = list.second.get<std::string>("column");
+                    index.index_name = list.second.get<std::string>("name");
+                    indexs.push_back(index);
                 }
 }
 
@@ -36,7 +42,7 @@ Catalog_manager::~Catalog_manager() {
 void Catalog_manager::read_menu_titles(std::vector<std::string> &result) const {
     // std::cout << pt.get<std::string>("minisql.table.list.tb.name");
     result.clear();
-    for(auto &value : table_map){
+    for (auto &value : table_map) {
         result.push_back(value.first);
     }
 }
@@ -53,7 +59,6 @@ void Catalog_manager::generate_ptree(ptree &pt) {
     for (auto &value : table_map) {
         const Table &table = value.second;
         ptree p_table;
-        size_t block_size = 0;
         p_table.put("name", table.name());
         p_table.put("block", table.get_block_size());
         p_table.put("size", table.get_row_number());
@@ -67,6 +72,13 @@ void Catalog_manager::generate_ptree(ptree &pt) {
             p_table.add_child("attribute.col", col);
         }
         pt.add_child("minisql.table.list.tb", p_table);
+    }
+    for (const Index &index : indexs) {
+        ptree p_index;
+        p_index.put("table", index.table_name);
+        p_index.put("column", index.column_name);
+        p_index.put("name", index.index_name);
+        pt.add_child("minisql.table.list.tb", p_index);
     }
 }
 
@@ -87,6 +99,32 @@ bool Catalog_manager::table_column_duplicate(const Table &table) {
         for (size_t j = i + 1; j < size; j++) {
             if (table.value_list[i].name == table.value_list[j].name)
                 return true;
+        }
+    }
+    return false;
+}
+
+Index Catalog_manager::get_index(const std::string &table_name, const std::string &column_name) {
+    for (const Index &index : indexs) {
+        if (index.table_name == table_name && index.column_name == index.column_name)
+            return index;
+    }
+}
+
+void Catalog_manager::drop_index(const std::string &index_name) {
+    for (auto cur = indexs.begin(); cur != indexs.end(); ++cur) {
+        if (cur->index_name == index_name){
+            indexs.erase(cur);
+            break;
+        }
+    }
+    throw Data_error("No index name " + index_name);
+}
+
+bool Catalog_manager::find_index(const std::string &index_name) {
+    for(const Index &index : indexs){
+        if(index.index_name == index_name){
+            return true;
         }
     }
     return false;

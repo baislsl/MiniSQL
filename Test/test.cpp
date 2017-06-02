@@ -72,6 +72,5 @@ void hash_test(){
 }
 
 int main(){
-
     intpre_test();
 }

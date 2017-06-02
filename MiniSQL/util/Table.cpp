@@ -91,3 +91,15 @@ std::vector<Type_info> Table::get_table_type_infos(const std::vector<std::string
         return type_infos;
     }
 }
+
+size_t Table::get_column_offset(const std::string &column_name) const {
+    size_t result = 0;
+    for(const Column& column : value_list){
+        if(column.name == column_name){
+            return result;
+        }else{
+            result += column.size();
+        }
+    }
+    throw Data_error("No column name " + column_name + " in " + table_name);
+}

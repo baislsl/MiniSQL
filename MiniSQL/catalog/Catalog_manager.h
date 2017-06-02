@@ -5,12 +5,13 @@
 #ifndef MINISQL_CATALOG_MANAGER_H
 #define MINISQL_CATALOG_MANAGER_H
 
+#include "../util/Table.h"
+#include "../util/Index.h"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <map>
-#include "../util/Table.h"
 
 using boost::property_tree::ptree;
 
@@ -23,9 +24,6 @@ public:
     void read_menu_titles(std::vector<std::string> &result) const;
 
     void create_table(const Table &table);
-
-    void generate_ptree(ptree &pt);
-
 
     inline std::vector<Column> get_table_columns(const std::string &table_name){
         return table_map[table_name].get_table_column();
@@ -54,16 +52,43 @@ public:
         return table_map[table_name];
     }
 
+    inline void create_index(const Index &index){
+        if(find_index(index))
+            throw Conflict_error("Index name " + index.index_name + " has existed!");
+        indexs.push_back(index);
+    }
+
+    void drop_index(const std::string &index_name);
+
+    inline bool find_index(const Index &index){
+        return find_index(index.index_name);
+    }
+
+    bool find_index(const std::string &index_name);
+
+    Index get_index(const std::string &table_name, const std::string &column_name);
+
+    Index get_index(const std::string &index_name){
+        for(const Index &index : indexs){
+            if(index.index_name == index_name){
+                return index;
+            }
+        }
+        throw Data_error("No index name " + index_name);
+    }
+
 private:
 //    ptree pt;
     const std::string filename;
     std::map<std::string, Table> table_map;
+    std::vector<Index> indexs;
 
 
     bool table_conflict(const std::string &table_name) const;
 
     bool table_column_duplicate(const Table &table);
 
+    void generate_ptree(ptree &pt);
 };
 
 

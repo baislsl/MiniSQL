@@ -78,22 +78,3 @@ size_t Buffer_manager::hash(const std::string &str) {
     return (ans * ans) & 0x3ff;
 }
 
-void Block::set_attr(int attr) {
-    var |= attr;
-}
-
-void Block::unset_attr(int attr) {
-    var &= ~attr;
-}
-
-bool Block::isLock() const {
-    return (var & (int) LOCK) != 0;
-}
-
-bool Block::inUse() const {
-    return (var & (int) USE) != 0;
-}
-
-Block::Block() : var(0) {
-
-}

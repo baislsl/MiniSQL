@@ -15,6 +15,8 @@ class Type_value : public Type_info{
 
 public:
 
+    Type_value();
+
     Type_value(const Type_info &type_info, const char* data);
 
     Type_value(const Type_info &type_info, const std::string &value_str);

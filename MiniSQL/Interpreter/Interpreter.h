@@ -6,13 +6,13 @@
 #define MINISQL_INTERPRETER_H
 
 
-#include <iostream>
-#include <sstream>
-#include <regex>
 #include "../util/Type_value.h"
 #include "../util/Table.h"
 #include "Error.h"
 #include "../API/API.h"
+#include <iostream>
+#include <sstream>
+#include <regex>
 
 class Interpreter {
 public:
@@ -26,15 +26,21 @@ private:
     API api;
     std::ostream& out;
     std::istream& in;
-    const std::string char_ptn = "\\s*([[:alnum:]]+)\\s+(char)\\s*\\((\\d+)\\)(\\s+unique)?\\s*";// sgender char (1) |sgender|char|1||
-    const std::string float_int_ptn = "\\s*([[:alnum:]]+)\\s+(float|int)(\\s+unique)?\\s*";           // sage int|sage|int||
-    const std::string create_table_ptn = "\\s*create[\\s+]table[\\s+]([[:alnum:]]+)[\\s*]\\((.*)\\)";
+    const std::string char_ptn = "\\s*(.+)\\s+(char)\\s*\\((\\d+)\\)(\\s+unique)?\\s*";// sgender char (1) |sgender|char|1||
+    const std::string float_int_ptn = "\\s*(.+)\\s+(float|int)(\\s+unique)?\\s*";           // sage int|sage|int||
+    const std::string create_table_ptn = "\\s*create[\\s+]table[\\s+](.+)[\\s*]\\((.*)\\)";
     const std::string primary_key_ptn = "\\s*primary[\\s+]key[\\s*]\\((.*)\\)";
-    const std::string insert_ptn = "\\s*insert[\\s+]into[\\s+]([[:alnum:]]+)[\\s+]values[\\s*]\\((.*)\\)";
-    const std::string select_condition_ptn = "\\s*select\\s(.+)[\\s]from\\s([[:alnum:]]+)\\s*where[\\s+](.*)";
-    const std::string select_ptn = "\\s*select\\s(.+)[\\s]from\\s([[:alnum:]]+)\\s*";
+    const std::string insert_ptn = "\\s*insert[\\s+]into[\\s+](.+)[\\s+]values[\\s*]\\((.*)\\)";
+    const std::string select_condition_ptn = "\\s*select\\s(.+)[\\s]from\\s(.+)\\s*where[\\s+](.*)";
+    const std::string select_ptn = "\\s*select\\s(.+)[\\s]from\\s(.+)\\s*";
+    const std::string create_index_ptn = "\\s*create\\s+index\\s+(.+)\\s+on(.+)\\s*\\((.+)\\)";
+    const std::string drop_index_ptn = "\\s*drop\\s+index\\s+(.+)";
 
     void run(const std::string &command);
+
+    void create_index(const std::string &index_name, const std::string& table_name, const std::string &column_name);
+
+    void drop_index(const std::string &index_name);
 
     void insert_table(const std::string &table_name, const std::string& command);
 

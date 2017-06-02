@@ -13,8 +13,7 @@ public:
     std::string name;
     int attr;
 
-    Column(const std::string &name, const Type_info &value_info, const int attr = 0)
-            : name(name), Type_info(value_info), attr(attr) {}
+    Column(const std::string &name, const Type_info &value_info, const int attr = 0);
 
     inline void add_attribute(int _attr) {
         attr |= _attr;
@@ -33,7 +32,7 @@ public:
     }
 
     enum {
-        UNQUE = 1 << 0,
+        UNIQUE = 1 << 0,
         PRIMARY = 1 << 1,
         INDEX = 1 << 2
     };

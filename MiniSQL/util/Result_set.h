@@ -5,13 +5,14 @@
 #ifndef MINISQL_RESULT_SET_H
 #define MINISQL_RESULT_SET_H
 
+#include "Type_value.h"
+#include "Column.h"
 #include <iostream>
 #include <vector>
-#include "Column.h"
-#include "Type_value.h"
 
 class Result_set {
     friend class Record_manager;
+    friend class api;
 public:
     Result_set();
 

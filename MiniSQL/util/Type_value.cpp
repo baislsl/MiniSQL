@@ -3,6 +3,8 @@
 //
 #include "Type_value.h"
 
+Type_value::Type_value() {}
+
 Type_value::Type_value(const Type_info &type_info, const char *data)
         :Type_info(type_info.type_name(), type_info.size()){
     switch (_type_name){
@@ -94,3 +96,4 @@ void Type_value::parse_value(const std::string &value_str) {
 
     }
 }
+

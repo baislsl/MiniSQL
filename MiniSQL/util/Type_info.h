@@ -5,7 +5,6 @@
 #ifndef MINISQL_TYPE_INFO_H
 #define MINISQL_TYPE_INFO_H
 
-#include <ios>
 #include "../Interpreter/Error.h"
 
 enum class Type_name{
@@ -14,6 +13,8 @@ enum class Type_name{
 // value type, no data and name
 class Type_info{
 public:
+
+    Type_info();;
 
     Type_info(std::string type_name, size_t size = 32);
 

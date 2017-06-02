@@ -5,40 +5,18 @@
 #ifndef MINISQL_POOL_H
 #define MINISQL_POOL_H
 
+#include "../Interpreter/Error.h"
+#include "Block.h"
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "../Interpreter/Error.h"
 
 /**
  * file : database/table_name.db
  * data : [offset, offset + length), may be small that 8*1024
  * the data was stored in pool[address]
  * */
-class Block {
-public:
-    std::string path;
-    std::size_t power;
-    size_t offset;
-    size_t length;
-    size_t address;
-    int var;
 
-    Block();
-
-    inline void set_attr(int attr);
-
-    inline void unset_attr(int attr);
-
-    inline bool isLock() const;
-
-    inline bool inUse() const;
-
-    enum {
-        USE = 1 << 0,
-        LOCK = 1 << 1
-    };
-};
 
 /// if memory pool was full, the program will drop the block that was most pre used
 /// the most recently the pool was accessed, the less possible the pool will be remove
@@ -53,6 +31,9 @@ public:
     char *read(std::string path, size_t offset, size_t length);
 
     void app_write(const std::string &path, char *data, size_t length);
+
+    void write(std::string path, char *data, size_t offset, size_t length){
+    }
 
 private:
     size_t power = 0;
