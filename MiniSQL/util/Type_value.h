@@ -5,7 +5,7 @@
 #ifndef MINISQL_VALUE_TYPE_H
 #define MINISQL_VALUE_TYPE_H
 
-#include "Type_name.h"
+#include "Type_info.h"
 #include <cstring>
 #include <iostream>
 #include <cmath>
@@ -15,22 +15,9 @@ class Type_value : public Type_info{
 
 public:
 
-    Type_value(const Type_info &type_info, const char* data)
-            :Type_info(type_info.type_name(), type_info.size()){
-        switch (_type_name){
-            case Type_name::INT     : value.integer = (int)(*data); break;
-            case Type_name::FLOAT   : value.ff = (double)(*data); break;
-            case Type_name::CHAR    :
-                strncpy(value.cc, data, _size);
-                value.cc[_size] = 0;
-                break;
-        }
-    }
+    Type_value(const Type_info &type_info, const char* data);
 
-    Type_value(const Type_info &type_info, const std::string &value_str)
-        :Type_info(type_info.type_name(), type_info.size()){
-        parse_value(value_str);
-    }
+    Type_value(const Type_info &type_info, const std::string &value_str);
 
     Type_value(const std::string &_type_name, const std::string &value_str)
         :Type_info(_type_name){
@@ -45,55 +32,16 @@ public:
         return (char*)(&value);
     }
 
-    friend bool operator<(const Type_value &a, const Type_value &b){
-        if(a._type_name != b._type_name)
-            throw Data_error("Can no compare data with different type!");
-        switch (a._type_name){
-            case Type_name::INT:
-                return a.value.integer < b.value.integer;
-            case Type_name::FLOAT:
-                return a.value.ff < b.value.ff;
-            case Type_name::CHAR:
-                return a.value.cc < b.value.cc;
-        }
-    }
+    friend bool operator<(const Type_value &a, const Type_value &b);
 
-    friend bool operator==(const Type_value &a, const Type_value &b){
-        if(a._type_name != b._type_name)
-            throw Data_error("Can no compare data with different type!");
-        switch (a._type_name){
-            case Type_name::INT:
-                return a.value.integer == b.value.integer;
-            case Type_name::FLOAT:
-                return fabs(a.value.ff - b.value.ff) <= DBL_MIN;
-            case Type_name::CHAR:
-                return a.value.cc == b.value.cc;
-        }
-    }
+    friend bool operator==(const Type_value &a, const Type_value &b);
 
-    friend bool operator>(const Type_value &a, const Type_value &b){
-        return b < a;
-    }
-    friend bool operator<=(const Type_value &a, const Type_value &b){
-        return !(b < a);
-    }
-    friend bool operator>=(const Type_value &a, const Type_value &b){
-        return !(b < a);
-    }
-    friend bool operator!=(const Type_value &a, const Type_value &b){
-        return !(a == b);
-    }
+    friend bool operator>(const Type_value &a, const Type_value &b);
+    friend bool operator<=(const Type_value &a, const Type_value &b);
+    friend bool operator>=(const Type_value &a, const Type_value &b);
+    friend bool operator!=(const Type_value &a, const Type_value &b);
 
-    friend std::ostream &operator<<(std::ostream &out, const Type_value &type_value) {
-        switch (type_value._type_name){
-            case Type_name ::INT    : out << type_value.value.integer; break;
-            case Type_name ::FLOAT  : out << type_value.value.ff; break;
-            case Type_name ::CHAR   :
-                out << std::string(type_value.value.cc); break;
-        }
-        return out;
-
-    }
+    friend std::ostream &operator<<(std::ostream &out, const Type_value &type_value);
 
 private:
     union {
@@ -102,27 +50,7 @@ private:
         char cc[256];
     }value;
 
-    void parse_value(const std::string &value_str){
-        char a[300];
-        switch (_type_name){
-            case Type_name::INT :
-                strcpy(a, value_str.c_str());
-                sscanf( a, "%d", &value.integer);
-                break;
-            case Type_name::FLOAT :
-                strcpy(a, value_str.c_str());
-                sscanf(a, "%lf",  &value.ff);
-                break;
-            case Type_name::CHAR :
-                strcpy(a, value_str.c_str());
-                if(value_str.size() > _size){
-                    throw Parse_error("too long char values for " + value_str);
-                }
-                sscanf(a, "%s",  value.cc);
-                break;
-
-        }
-    }
+    void parse_value(const std::string &value_str);
 };
 
 #endif //MINISQL_VALUE_TYPE_H

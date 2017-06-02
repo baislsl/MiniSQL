@@ -13,19 +13,11 @@
 
 class API {
 public:
-    API():catalog("../Test/cata.xml"),
-          buffer_manager(),
-          record_manager(buffer_manager){
-    }
+    API();
 
-    void create_table(const Table& table){
-        catalog.create_table(table);
-    }
+    void create_table(const Table& table);
 
-    void insert_table(const std::string &table_name, const std::vector<std::string> &items){
-        Table table = std::move(catalog.get_table_handler(table_name));
-        record_manager.insert_table(table, items);
-    }
+    void insert_table(const std::string &table_name, const std::vector<std::string> &items);
 
     /**
      * @brief conduction selection on table
@@ -37,10 +29,7 @@ public:
      * */
     Result_set select_table(const std::string &table_name,
                             const std::vector<std::string> &selects,
-                            std::vector<Condition> &conditions ){
-        Table table = catalog.get_table_handler(table_name);
-        return record_manager.select_table(table, selects,  conditions);
-    }
+                            std::vector<Condition> &conditions );
 
 
 

@@ -2,7 +2,7 @@
 // Created by baislsl on 17-5-29.
 //
 
-#include "Type_name.h"
+#include "Type_info.h"
 #include <iostream>
 
 #ifndef MINISQL_COLUMN_H

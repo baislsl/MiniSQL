@@ -6,7 +6,7 @@
 #define MINISQL_CONDITION_H
 
 #include "Type_value.h"
-#include "Type_name.h"
+#include "Type_info.h"
 #include <string>
 #include <memory>
 
