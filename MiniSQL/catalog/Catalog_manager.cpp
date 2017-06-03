@@ -29,7 +29,8 @@ Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filen
                     index.table_name = list.second.get<std::string>("table");
                     index.column_name = list.second.get<std::string>("column");
                     index.index_name = list.second.get<std::string>("name");
-                    indexs.push_back(index);
+                    index.size = list.second.get<size_t>("size");
+                    indexes.push_back(index);
                 }
 }
 
@@ -55,6 +56,10 @@ void Catalog_manager::create_table(const Table &table) {
     table_map[table.table_name] = table;
 }
 
+void Catalog_manager::drop_table(const std::string &table_name) {
+    table_map.erase(table_name);
+}
+
 void Catalog_manager::generate_ptree(ptree &pt) {
     for (auto &value : table_map) {
         const Table &table = value.second;
@@ -73,12 +78,13 @@ void Catalog_manager::generate_ptree(ptree &pt) {
         }
         pt.add_child("minisql.table.list.tb", p_table);
     }
-    for (const Index &index : indexs) {
+    for (const Index &index : indexes) {
         ptree p_index;
         p_index.put("table", index.table_name);
         p_index.put("column", index.column_name);
         p_index.put("name", index.index_name);
-        pt.add_child("minisql.table.list.tb", p_index);
+        p_index.put("size", index.size);
+        pt.add_child("minisql.index.list.tb", p_index);
     }
 }
 
@@ -105,27 +111,46 @@ bool Catalog_manager::table_column_duplicate(const Table &table) {
 }
 
 Index Catalog_manager::get_index(const std::string &table_name, const std::string &column_name) {
-    for (const Index &index : indexs) {
+    for (const Index &index : indexes) {
         if (index.table_name == table_name && index.column_name == index.column_name)
             return index;
     }
+    throw Data_error("No column name " + column_name + " in table name " + table_name);
 }
 
 void Catalog_manager::drop_index(const std::string &index_name) {
-    for (auto cur = indexs.begin(); cur != indexs.end(); ++cur) {
+    for (auto cur = indexes.begin(); cur != indexes.end(); ++cur) {
         if (cur->index_name == index_name){
-            indexs.erase(cur);
-            break;
+            indexes.erase(cur);
+            return;
         }
     }
     throw Data_error("No index name " + index_name);
 }
 
 bool Catalog_manager::find_index(const std::string &index_name) {
-    for(const Index &index : indexs){
+    for(const Index &index : indexes){
         if(index.index_name == index_name){
             return true;
         }
     }
     return false;
 }
+
+void Catalog_manager::update_index(const Index &new_index) {
+    for(Index& index : indexes){
+        if(index.index_name == new_index.index_name){
+            index = new_index;
+        }
+    }
+}
+
+std::vector<Index> Catalog_manager::get_indexes(const Table &table) const {
+    std::vector<Index> result;
+    for (const Index &index : indexes) {
+        if (index.table_name == table.name())
+            result.push_back(index);
+    }
+    return result;
+}
+

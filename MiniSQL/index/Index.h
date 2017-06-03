@@ -10,6 +10,7 @@ struct Index{
     std::string table_name;
     std::string column_name;
     std::string index_name;
+    size_t size;
 };
 
 #endif //MINISQL_INDEX_H

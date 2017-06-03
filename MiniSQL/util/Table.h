@@ -65,7 +65,7 @@ public:
 
     std::vector<Column> get_table_column(const std::vector<std::string> &selects) const;
 
-    const Type_info get_column_info(const std::string &table_name) const;
+    const Type_info get_column_info(const std::string &column_name) const;
 
     std::vector<Type_info> get_table_type_infos() const;
 

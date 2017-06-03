@@ -39,3 +39,5 @@ double/float = 4 bit
 
 database/table_name:
     000000_0000_000_
+## b+ tree
+一个b+树数据建立在同一个文件内, 一个node的标记为偏移量和节点数

@@ -6,7 +6,7 @@
 #define MINISQL_CATALOG_MANAGER_H
 
 #include "../util/Table.h"
-#include "../util/Index.h"
+#include "../index/Index.h"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -24,6 +24,8 @@ public:
     void read_menu_titles(std::vector<std::string> &result) const;
 
     void create_table(const Table &table);
+
+    void drop_table(const std::string &table_name);
 
     inline std::vector<Column> get_table_columns(const std::string &table_name){
         return table_map[table_name].get_table_column();
@@ -55,7 +57,7 @@ public:
     inline void create_index(const Index &index){
         if(find_index(index))
             throw Conflict_error("Index name " + index.index_name + " has existed!");
-        indexs.push_back(index);
+        indexes.push_back(index);
     }
 
     void drop_index(const std::string &index_name);
@@ -66,10 +68,14 @@ public:
 
     bool find_index(const std::string &index_name);
 
+    std::vector<Index> get_indexes(const Table &table) const;
+
+    void update_index(const Index& new_index);
+
     Index get_index(const std::string &table_name, const std::string &column_name);
 
     Index get_index(const std::string &index_name){
-        for(const Index &index : indexs){
+        for(const Index &index : indexes){
             if(index.index_name == index_name){
                 return index;
             }
@@ -78,10 +84,9 @@ public:
     }
 
 private:
-//    ptree pt;
     const std::string filename;
     std::map<std::string, Table> table_map;
-    std::vector<Index> indexs;
+    std::vector<Index> indexes;
 
 
     bool table_conflict(const std::string &table_name) const;

@@ -6,6 +6,20 @@
 Interpreter::~Interpreter() {
 }
 
+Interpreter::Interpreter(std::istream &_in, std::ostream &_out)
+        :in(_in), out(_out), api(),
+         e_create_table(create_table_ptn, std::regex::icase),
+         e_drop_table(drop_table_ptn, std::regex::icase),
+         e_insert(insert_ptn, std::regex::icase),
+         e_select(select_ptn, std::regex::icase),
+         e_select_condition(select_condition_ptn, std::regex::icase),
+         e_create_index(create_index_ptn, std::regex::icase),
+         e_drop_index(drop_index_ptn, std::regex::icase),
+         e_qiut(quit_ptn, std::regex::icase),
+         e_execfile(execfile_ptn, std::regex::icase){
+    exec_file(in);
+}
+
 void Interpreter::insert_table(const std::string &table_name, const std::string &command) {
     std::vector<std::string> items;
     string_spilt(command, items);
@@ -56,20 +70,14 @@ void Interpreter::create_table(const std::string &table_name, const std::string 
     api.create_table(table);
 }
 
-void Interpreter::run(const std::string &command) {
+bool Interpreter::run(const std::string &command) {
     std::smatch m;
-    std::regex e_table(create_table_ptn, std::regex::icase);
-    std::regex e_insert(insert_ptn, std::regex::icase);
-    std::regex e_select(select_ptn, std::regex::icase);
-    std::regex e_select_condition(select_condition_ptn, std::regex::icase);
-    std::regex e_create_index(create_index_ptn, std::regex::icase);
-    std::regex e_drop_index(drop_index_ptn, std::regex::icase);
-
-    if (std::regex_match(command, m, e_table)) {
+    if (std::regex_match(command, m, e_create_table)) {
         create_table(m.str(1), m.str(2));
+        out << "succeed to create table " + m.str(1) << std::endl;
     } else if (std::regex_match(command, m, e_insert)) {
         insert_table(m.str(1), m.str(2));
-        out << "finished insert";
+        out << "finished insert on table " + m.str(1) << std::endl;
     } else if (std::regex_match(command, m, e_select)) {
         std::cout << m.str(1) << "|" << m.str(2) << std::endl;
         std::string selections = string_trim(m.str(1));
@@ -100,32 +108,48 @@ void Interpreter::run(const std::string &command) {
         conditions.push_back(get_condition(condition_query));
         out << api.select_table(m.str(2), selects, conditions);
     } else if (std::regex_match(command, m, e_create_index)) {
-        std::string index_name = m.str(1), table_name = m.str(2);
+        std::string index_name = string_trim(m.str(1)), table_name = string_trim(m.str(2));
         std::string column_name = string_trim(m.str(3));
         create_index(index_name, table_name, column_name);
+        out << "succeed to create index " + index_name + " on "
+               + column_name + " of table " + table_name << std::endl;
     } else if (std::regex_match(command, m, e_drop_index)) {
         std::string index_name = m.str(1);
         drop_index(index_name);
+        out << "succeed to drop index " + index_name;
+    } else if (std::regex_match(command, m, e_drop_table)) {
+        std::string table_name = string_trim(m.str(1));
+        drop_table(table_name);
+        out << "succeed to drop table " + table_name << std::endl;
+    } else if (std::regex_match(command, m, e_qiut)) {
+        out << "exit the minisql system" << std::endl;
+        return false;
+    } else if (std::regex_match(command, m, e_execfile)) {;
+        std::string path = fix(string_trim(m.str(1)));
+        out << "run sql file... " + path << std::endl;
+        on_exec_file(path);
     } else {
         throw Parse_error("Syntax in " + command);
     }
+    return true;
 }
 
-Interpreter::Interpreter(std::istream &_in, std::ostream &_out)
-        : in(_in), out(_out), api() {
-    std::string line, input(" ");
+void Interpreter::exec_file(std::istream &in) {
+    std::string line, input;
     while (in >> line) {
         input.append(line);
         while (input.find(';') != std::string::npos) {
             size_t pos = input.find(';');
             std::string command = input.substr(0, pos);
             input = input.substr(pos + 1);
-            run(command);
+            bool result = run(command);
 //                try{
-//                    run(command);
+//                    bool result = run(command);
 //                }catch (const std::exception &e){
 //                    handle_error(e);
 //                }
+            if(!result) return;
+
         }
         input.append(" ");      // replace '\n' with blank
     }
@@ -229,10 +253,20 @@ std::string Interpreter::string_simplify(const std::string &str) {
 void
 Interpreter::create_index(const std::string &index_name, const std::string &table_name,
                           const std::string &column_name) {
-    Index index{index_name, table_name, column_name};
-    api.create_index(index);
+    api.create_index(index_name, table_name, column_name);
 }
 
 void Interpreter::drop_index(const std::string &index_name) {
     api.drop_index(index_name);
 }
+
+void Interpreter::drop_table(const std::string &table_name) {
+    api.drop_table(table_name);
+}
+
+void Interpreter::on_exec_file(const std::string path) {
+    std::ifstream file(path);
+    exec_file(file);
+    file.close();
+}
+

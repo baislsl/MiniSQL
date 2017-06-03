@@ -38,14 +38,16 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
         std::vector<Type_value> block_data;
 
         bool flag = true;
-        for(size_t cnt = 0;cnt < condition_offset.size();cnt++){
-            size_t length =conditions[cnt].size();
-            char data[length];
-            strncpy(data, cache + condition_offset[cnt], length);
-            Type_info type_info = conditions[cnt].type_info();
-            if(!conditions[cnt].match(Type_value(type_info, data))){
-                flag = false;
-                break;
+        if(!conditions.empty()){
+            for(size_t cnt = 0;cnt < condition_offset.size();cnt++){
+                size_t length =conditions[cnt].size();
+                char data[length];
+                strncpy(data, cache + condition_offset[cnt], length);
+                Type_info type_info = conditions[cnt].type_info();
+                if(!conditions[cnt].match(Type_value(type_info, data))){
+                    flag = false;
+                    break;
+                }
             }
         }
 

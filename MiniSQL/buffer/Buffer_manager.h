@@ -32,8 +32,7 @@ public:
 
     void app_write(const std::string &path, char *data, size_t length);
 
-    void write(std::string path, char *data, size_t offset, size_t length){
-    }
+    void write(std::string path, char *data, size_t offset, size_t length);
 
 private:
     size_t power = 0;
@@ -47,6 +46,7 @@ private:
 
     static size_t hash(const std::string &str);
 
+    void unset_block(const std::string path);
 
 };
 

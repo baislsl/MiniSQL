@@ -41,7 +41,8 @@ public:
         Result_set result_set = select_table(table, selects, conditions);
         std::vector<Type_value> result;
         for(const std::vector<Type_value> &value : result_set.data){
-            result.push_back(*(value.begin()));
+            if(!value.empty())
+                result.push_back(*(value.begin()));
         }
         return result;
     }

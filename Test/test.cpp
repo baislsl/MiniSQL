@@ -63,9 +63,9 @@ void intpre_test(){
 
 void hash_test(){
     cout << sizeof(double) << endl;
-    // file_IO();
-    // file_IO2();
-    // intpre_test();
+     file_IO();
+     file_IO2();
+     intpre_test();
 //    cout << Buffer_manager::hash("gg");
 //    cout << Buffer_manager::hash("bai");
 //    cout << Buffer_manager::hash("baislsl");
@@ -73,4 +73,9 @@ void hash_test(){
 
 int main(){
     intpre_test();
+//    std::string path = "gg.ind";
+//    ofstream out(path);
+//    int g = 10;
+//    out.write((char*)(&g), 3);
+//    out.close();
 }

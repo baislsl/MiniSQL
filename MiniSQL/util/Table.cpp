@@ -10,7 +10,7 @@ Table::Table() {}
 Table::Table(const std::string &table_name) : table_name(table_name) {}
 
 void Table::add_column_attribute(const std::string &column_name, int attr) {
-    for (Column column : value_list) {
+    for (Column &column : value_list) {
         if (column.name == column_name) {
             column.add_attribute(attr);
             return;
@@ -61,9 +61,9 @@ std::vector<Column> Table::get_table_column(const std::vector<std::string> &sele
     }
 }
 
-const Type_info Table::get_column_info(const std::string &table_name) const {
+const Type_info Table::get_column_info(const std::string &column_name) const {
     for(const Column &column : value_list){
-        if(column.name == table_name){
+        if(column.name == column_name){
             return column.value_type();
         }
     }

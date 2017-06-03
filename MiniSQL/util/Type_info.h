@@ -14,7 +14,7 @@ enum class Type_name{
 class Type_info{
 public:
 
-    Type_info();;
+    Type_info();
 
     Type_info(std::string type_name, size_t size = 32);
 
