@@ -5,7 +5,8 @@
 #ifndef MINISQL_TYPE_INFO_H
 #define MINISQL_TYPE_INFO_H
 
-#include "../Interpreter/Error.h"
+#include <string>
+#include <cstddef>
 
 enum class Type_name{
     INT, CHAR, FLOAT

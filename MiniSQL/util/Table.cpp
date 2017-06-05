@@ -3,6 +3,7 @@
 //
 
 #include "Table.h"
+#include "../Interpreter/Interpreter_exception.h"
 
 
 Table::Table() {}
@@ -16,7 +17,7 @@ void Table::add_column_attribute(const std::string &column_name, int attr) {
             return;
         }
     }
-    throw Data_error("No column name as " + column_name);
+    throw Column_not_found_error("No column name as " + column_name);
 }
 
 std::vector<size_t> Table::get_offset(const std::vector<Condition> &conditions) const {
@@ -101,5 +102,5 @@ size_t Table::get_column_offset(const std::string &column_name) const {
             result += column.size();
         }
     }
-    throw Data_error("No column name " + column_name + " in " + table_name);
+    throw Column_not_found_error("No column name " + column_name + " in " + table_name);
 }

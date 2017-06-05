@@ -3,6 +3,7 @@
 //
 
 #include "BP_node.h"
+#include "Index_exception.h"
 
 void BP_node::combine(const BP_node &com, const Key &key) {
     node[size] = key;
@@ -56,7 +57,7 @@ Key BP_node::neibo(const size_t a, const size_t b) {
             return node[i];
         }
     }
-    throw Data_error("error when search in the BP_node");
+    throw Data_not_found("error when search in the BP_node");
 }
 
 size_t BP_node::get_slide(const size_t &ob, bool &is_left) const {
@@ -90,7 +91,7 @@ void BP_node::remove(const Key &value, bool) { // only for nonleaf node
             return;
         }
     }
-    throw Data_error("No value in the index as ...");
+    throw Data_not_found("No value in the index as ...");
 }
 
 void BP_node::remove(const Key &value) {   // only leaf node is available
@@ -103,7 +104,7 @@ void BP_node::remove(const Key &value) {   // only leaf node is available
             return;
         }
     }
-    throw Data_error("No value in the index as ...");
+    throw Data_not_found("No value in the index as ...");
 }
 
 Key BP_node::find_value(const Key &value) const {

@@ -132,7 +132,6 @@ void BP_tree::drop_bp_node(const BP_node &node) {
 BP_node BP_tree::read_node(size_t offset) {
     char *data = buffer_manager.read(path, offset * (0x3ff << 2), 0x3ff << 2);
     BP_node node;
-    char flag;
     read(&node.leaf, data, sizeof(node.leaf));
     read(&node.size, data, sizeof(node.size));
     read(&node.parent, data, sizeof(node.parent));

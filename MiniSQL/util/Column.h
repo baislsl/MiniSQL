@@ -2,11 +2,13 @@
 // Created by baislsl on 17-5-29.
 //
 
+#ifndef MINISQL_COLUMN_H
+#define MINISQL_COLUMN_H
+
+
 #include "Type_info.h"
 #include <iostream>
 
-#ifndef MINISQL_COLUMN_H
-#define MINISQL_COLUMN_H
 // no value, but definition
 class Column : public Type_info{
 public:

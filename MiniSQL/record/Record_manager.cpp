@@ -3,6 +3,7 @@
 //
 
 #include "Record_manager.h"
+#include "Record_exception.h"
 
 Record_manager::Record_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager){
@@ -12,7 +13,7 @@ std::vector<Type_value>
 Record_manager::match(const std::vector<Type_info> &type_infos, const std::vector<std::string> &values) {
     std::vector<Type_value> result;
     if (type_infos.size() != values.size())
-        throw Data_error("value does not match to table");
+        throw Table_value_not_found_error("value does not match to table");
     for (size_t i = 0; i < type_infos.size(); i++) {
         Type_value type_value(type_infos[i], values[i]);
         result.push_back(type_value);

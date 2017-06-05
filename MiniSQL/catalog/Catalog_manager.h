@@ -7,6 +7,7 @@
 
 #include "../util/Table.h"
 #include "../index/Index.h"
+#include "Catalog_exception.h"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -80,7 +81,7 @@ public:
                 return index;
             }
         }
-        throw Data_error("No index name " + index_name);
+        throw Name_not_found_error("No index name " + index_name);
     }
 
 private:

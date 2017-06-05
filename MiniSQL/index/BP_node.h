@@ -6,7 +6,6 @@
 #define MINISQL_BP_NODE_H
 
 #include "../util/Type_value.h"
-
 struct Key {
     Type_value value;
     size_t index;

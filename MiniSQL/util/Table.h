@@ -7,11 +7,11 @@
 
 #include "Type_info.h"
 #include "Column.h"
-#include "../Interpreter/Error.h"
 #include "Condition.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "Util_exception.h"
 
 
 class Table {
@@ -58,7 +58,7 @@ public:
                 return column;
             }
         }
-        throw Data_error("No column name " + column_name + " in " + table_name);
+        throw Column_not_found_error("No column name " + column_name + " in " + table_name);
     }
 
     std::vector<Column> get_table_column() const;

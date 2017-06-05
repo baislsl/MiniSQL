@@ -10,19 +10,25 @@
 #include <iostream>
 #include <cmath>
 #include <values.h>
+
 // with value
-class Type_value : public Type_info{
+class Type_value : public Type_info {
 
 public:
+    ~Type_value();
 
     Type_value();
 
-    Type_value(const Type_info &type_info, const char* data);
+    Type_value(const Type_value &type_value);
+
+    Type_value &operator=(const Type_value &type_value);
+
+    Type_value(const Type_info &type_info, const char *data);
 
     Type_value(const Type_info &type_info, const std::string &value_str);
 
     Type_value(const std::string &_type_name, const std::string &value_str)
-        :Type_info(_type_name){
+            : Type_info(_type_name) {
         parse_value(value_str);
     }
 
@@ -30,8 +36,8 @@ public:
         return Type_info(_type_name, _size);
     }
 
-    inline char* data() const {
-        return (char*)(&value);
+    inline char *data() const {
+        return (char *) (&value);
     }
 
     friend bool operator<(const Type_value &a, const Type_value &b);
@@ -39,8 +45,11 @@ public:
     friend bool operator==(const Type_value &a, const Type_value &b);
 
     friend bool operator>(const Type_value &a, const Type_value &b);
+
     friend bool operator<=(const Type_value &a, const Type_value &b);
+
     friend bool operator>=(const Type_value &a, const Type_value &b);
+
     friend bool operator!=(const Type_value &a, const Type_value &b);
 
     friend std::ostream &operator<<(std::ostream &out, const Type_value &type_value);
@@ -49,8 +58,8 @@ private:
     union {
         int integer;
         double ff;
-        char cc[256];
-    }value;
+        char *cc;
+    } value;
 
     void parse_value(const std::string &value_str);
 };

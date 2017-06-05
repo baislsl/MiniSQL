@@ -9,7 +9,6 @@
 #include "../util/Type_info.h"
 #include "../util/Type_value.h"
 #include "../buffer/Buffer_manager.h"
-#include "../Interpreter/Error.h"
 #include "../util/Result_set.h"
 #include "../util/Condition.h"
 #include "../util/Table.h"

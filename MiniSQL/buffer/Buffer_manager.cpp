@@ -5,20 +5,20 @@
 #include "Buffer_manager.h"
 
 Buffer_manager::Buffer_manager() {
-    for (int i = 0; i < 1024; i++) {
+    for (size_t i = 0; i < 1024; i++) {
         pool[i] = new char[0x3ff << 2];
     }
 }
 
 Buffer_manager::~Buffer_manager() {
-    for (int i = 0; i < 1024; i++) {
-        delete pool[i];
+    for (size_t i = 0; i < 1024; i++) {
+        delete pool[i];;
     }
 }
 
 char *Buffer_manager::read(std::string path, size_t offset, size_t length) {
     if (length > (0x3ff << 2))
-        throw Data_error("Too big memory required to read once");
+        throw "Too big memory required to read once";
     size_t index = hash(path);
     while (blocks[index].isLock()) {
         index = (index + 1) & 0x3ff;
@@ -43,7 +43,7 @@ void Buffer_manager::app_write(const std::string &path, char *data, size_t lengt
     out.close();
 }
 
-void Buffer_manager::write(std::string path, char *data, size_t offset, size_t length) {
+void Buffer_manager::write(const std::string &path, char *data, size_t offset, size_t length) {
     std::ofstream out(path, std::fstream::binary);
     out.seekp(offset);
     out.write(data, length);
@@ -60,7 +60,7 @@ void Buffer_manager::fill_block(Block &block, const std::string &path, const siz
     block.offset = offset;
     std::fstream in(address, std::fstream::in);
     if (!in) {
-        throw File_construction_error("Fail to open file " + address);
+        throw Fail_open_file_error("Fail to open file " + address);
     }
     in.seekg(offset, std::fstream::beg);
     in.read(pool[block.address], 0x3ff << 2);
@@ -82,12 +82,16 @@ size_t Buffer_manager::hash(const std::string &str) {
 
 void Buffer_manager::unset_block(const std::string path) {
     size_t index = hash(path);
-    while (blocks[index].isLock()) {
-        index = (index + 1) & 0x3ff;
-    }
     Block &block = blocks[index];
     if (block.inUse() && path == block.path) {
         block.unset_attr(Block::USE);   // 数据被修改过, 不再有效
+    }
+
+    while (blocks[index].isLock()) {
+        index = (index + 1) & 0x3ff;
+    }
+    if (blocks[index].inUse() && path == block.path) {
+        blocks[index].unset_attr(Block::USE);   // 数据被修改过, 不再有效
     }
 }
 

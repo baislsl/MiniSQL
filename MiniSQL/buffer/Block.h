@@ -8,6 +8,9 @@
 
 #include <cstddef>
 #include <string>
+#include "Buffer_exception.h"
+
+#define MAX_PIN 1024
 
 class Block {
 public:
@@ -40,6 +43,7 @@ public:
         USE = 1 << 0,
         LOCK = 1 << 1
     };
+private:
 };
 
 

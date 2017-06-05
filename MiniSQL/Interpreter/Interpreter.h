@@ -8,7 +8,6 @@
 
 #include "../util/Type_value.h"
 #include "../util/Table.h"
-#include "Error.h"
 #include "../API/API.h"
 #include <iostream>
 #include <sstream>

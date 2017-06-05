@@ -3,6 +3,7 @@
 //
 
 #include "Catalog_manager.h"
+#include "Catalog_exception.h"
 
 
 Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filename) {
@@ -115,7 +116,7 @@ Index Catalog_manager::get_index(const std::string &table_name, const std::strin
         if (index.table_name == table_name && index.column_name == index.column_name)
             return index;
     }
-    throw Data_error("No column name " + column_name + " in table name " + table_name);
+    throw Name_not_found_error("No column name " + column_name + " in table name " + table_name);
 }
 
 void Catalog_manager::drop_index(const std::string &index_name) {
@@ -125,7 +126,7 @@ void Catalog_manager::drop_index(const std::string &index_name) {
             return;
         }
     }
-    throw Data_error("No index name " + index_name);
+    throw Name_not_found_error("No index name " + index_name);
 }
 
 bool Catalog_manager::find_index(const std::string &index_name) {

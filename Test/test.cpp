@@ -71,8 +71,20 @@ void hash_test(){
 //    cout << Buffer_manager::hash("baislsl");
 }
 
+void type_value_test(){
+    Type_info info(Type_name::CHAR, 10);
+    Type_value value(info , "gsdfg");
+    Type_value value2;
+    value2 = value;
+
+
+
+
+}
+
 int main(){
-    intpre_test();
+   // type_value_test();
+     intpre_test();
 //    std::string path = "gg.ind";
 //    ofstream out(path);
 //    int g = 10;
