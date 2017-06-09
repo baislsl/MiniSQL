@@ -5,17 +5,13 @@
 #include "Util_exception.h"
 #include "../Interpreter/Interpreter_exception.h"
 
-Type_value::~Type_value() {
-    if(type_name() == Type_name::CHAR)
-        delete value.cc;
-}
+Type_value::~Type_value() {}
 
 Type_value::Type_value() {}
 
 Type_value::Type_value(const Type_value &type_value)
         :Type_info(type_value.type_name(), type_value.size()) {
     if(_type_name == Type_name::CHAR){
-        value.cc = new char[_size + 1];
         memcpy(value.cc, type_value.value.cc, _size + 1);
     }else{
         value = type_value.value;
@@ -26,8 +22,6 @@ Type_value &Type_value::operator=(const Type_value &type_value) {
     this->_type_name = type_value._type_name;
     this->_size = type_value._size;
     if(_type_name == Type_name::CHAR){
-        delete value.cc;
-        value.cc = new char[_size + 1];
         memcpy(value.cc, type_value.value.cc, _size + 1);
     }else{
         value = type_value.value;
@@ -40,7 +34,6 @@ Type_value::Type_value(const Type_info &type_info, const char *data)
         case Type_name::INT     : value.integer = (int)(*data); break;
         case Type_name::FLOAT   : value.ff = (double)(*data); break;
         case Type_name::CHAR    :
-            value.cc = new char[_size + 1];
             strncpy(value.cc, data, _size);
             value.cc[_size] = 0;
             break;

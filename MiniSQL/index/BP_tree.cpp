@@ -151,7 +151,7 @@ BP_node BP_tree::find_leaf(const Key &value) {
 }
 
 void BP_tree::writein_node(const BP_node &node) {
-    char *data = new char[0x3ff << 2];
+    char data[0x3ff << 2];
     char *cur = data;
     b_wirte(cur, &node.leaf, sizeof(node.leaf));
     b_wirte(cur, &node.size, sizeof(node.size));

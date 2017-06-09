@@ -16,7 +16,7 @@ public:
     Name_not_found_error(const std::string &info) :
             errlog("Name not found error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 class Conflict_error : public std::exception {
@@ -26,7 +26,7 @@ public:
     Conflict_error(const std::string &info) :
             errlog("Conflict error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 #endif //MINISQL_EXCEPTION_H

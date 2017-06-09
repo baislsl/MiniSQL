@@ -41,6 +41,17 @@ std::vector<size_t> Table::get_offset(const std::vector<std::string> &selects) c
     return offsets;
 }
 
+std::vector<size_t> Table::get_index(const std::vector<std::string> &selects) const {
+    std::vector<size_t> indexes;
+    for(auto column = value_list.begin(); column != value_list.end(); ++column){
+        std::string name = column->name;
+        if (selects.empty() || std::find(selects.begin(), selects.end(), name) != selects.end()) {
+            indexes.push_back(size_t(column - value_list.begin()));
+        }
+    }
+    return indexes;
+}
+
 std::vector<Column> Table::get_table_column() const {
     std::vector<Column> columns;
     columns = value_list;
@@ -104,3 +115,14 @@ size_t Table::get_column_offset(const std::string &column_name) const {
     }
     throw Column_not_found_error("No column name " + column_name + " in " + table_name);
 }
+
+size_t Table::get_column_index(const std::string &column_name) const {
+    for(auto column = value_list.begin(); column != value_list.end(); ++column){
+        if(column->name == column_name)
+            return (size_t)(column - value_list.begin());
+    }
+    throw Column_not_found_error("No column name " + column_name + " in " + table_name);
+}
+
+
+

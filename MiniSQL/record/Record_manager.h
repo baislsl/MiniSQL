@@ -19,6 +19,13 @@ class Record_manager {
 public:
     Record_manager(Buffer_manager &_buffer_manager);
 
+    void insert_table(const std::string &table_name, const std::vector<Type_value> &values);
+
+    void clear_table(const Table &table);
+
+    /// return the size of table ater deletion
+    size_t delete_table(const Table &table, const std::vector<Condition> conditions);
+
     void insert_table(const Table &table, const std::vector<std::string> &values);
 
     void insert_table(const std::string &table_name,

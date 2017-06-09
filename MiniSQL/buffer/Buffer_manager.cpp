@@ -95,4 +95,8 @@ void Buffer_manager::unset_block(const std::string path) {
     }
 }
 
+void Buffer_manager::remove_file(const std::string &path) {
+    std::remove(path.c_str());
+}
+
 

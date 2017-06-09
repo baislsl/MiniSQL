@@ -18,6 +18,10 @@ class API {
 public:
     API();
 
+    void clear_table(const std::string &table_name);
+
+    void delete_table(const std::string &table_name, const std::vector<Condition> &conditions);
+
     void create_table(const Table& table);
 
     void drop_table(const std::string &table_name);

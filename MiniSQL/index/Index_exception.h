@@ -15,7 +15,7 @@ public:
     Data_not_found(const std::string &info) :
             errlog("Name not found error : " + info) {};
 
-    virtual const char *what() const throw() { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 

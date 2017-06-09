@@ -20,7 +20,9 @@ class Catalog_manager {
 public:
     Catalog_manager(const std::string &_filename);
 
-    ~Catalog_manager();;
+    ~Catalog_manager();
+
+    void update_table_size(const std::string table_name, size_t size);
 
     void read_menu_titles(std::vector<std::string> &result) const;
 
@@ -75,14 +77,7 @@ public:
 
     Index get_index(const std::string &table_name, const std::string &column_name);
 
-    Index get_index(const std::string &index_name){
-        for(const Index &index : indexes){
-            if(index.index_name == index_name){
-                return index;
-            }
-        }
-        throw Name_not_found_error("No index name " + index_name);
-    }
+    Index get_index(const std::string &index_name);
 
 private:
     const std::string filename;

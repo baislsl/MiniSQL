@@ -18,7 +18,7 @@ void Index_manager::create_index(Index &index, const std::vector<Type_value> &va
 }
 
 void Index_manager::drop_index(const Index &index) {
-    std::remove(static_cast<std::string>(basic_index_address + index.index_name + ".ind").c_str());
+    buffer_manager.remove_file(basic_index_address + index.index_name + ".ind");
 }
 
 size_t Index_manager::select(const Index &index, const Type_value &select_value) {

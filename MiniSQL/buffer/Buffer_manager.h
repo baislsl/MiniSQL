@@ -37,6 +37,10 @@ public:
 
     void write(const std::string &path, char *data, size_t offset, size_t length);
 
+    void unset_block(const std::string path);
+
+    void remove_file(const std::string &path);
+
 private:
     size_t power = 0;
     Block blocks[1024];
@@ -49,7 +53,6 @@ private:
 
     static size_t hash(const std::string &str);
 
-    void unset_block(const std::string path);
 
 };
 

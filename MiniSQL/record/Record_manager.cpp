@@ -29,7 +29,8 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
     }
 
     std::vector<size_t> select_offset = table.get_offset(selects),
-            condition_offset = table.get_offset(conditions);
+            condition_offset = table.get_offset(conditions),
+            select_index = table.get_index(selects);
     std::vector<Column> columns = table.get_table_column();
     Result_set result_set(columns);
     size_t block_size = table.get_block_size(), row_number = table.get_row_number();
@@ -37,7 +38,6 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
     for (size_t i = 0; i < row_number; i++) {
         char *cache = buffer_manager.read(path, i * block_size, block_size);
         std::vector<Type_value> block_data;
-
         bool flag = true;
         if(!conditions.empty()){
             for(size_t cnt = 0;cnt < condition_offset.size();cnt++){
@@ -54,7 +54,7 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
 
         if(flag){
             for (size_t cnt = 0; cnt < select_offset.size(); cnt++) {
-                Column column = result_set.value_set[cnt];
+                Column column = result_set.value_set[select_index[cnt]];
                 size_t length = column.size();
                 char data[length];
                 strncpy(data, cache + select_offset[cnt], length);
@@ -70,14 +70,19 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
 void Record_manager::insert_table(const std::string &table_name, const std::vector<Type_info> &type_infos,
                                   const std::vector<std::string> &values) {
     std::vector<Type_value> result(match(type_infos, values));
+    insert_table(table_name,  result);
+
+}
+
+void Record_manager::insert_table(const std::string &table_name, const std::vector<Type_value> &values) {
     size_t size = 0;
-    for(const Type_value& value : result){
+    for(const Type_value& value : values){
         size += value.size();
     }
     char data[size + 1];
     size_t offset = 0;
     std::string path = basic_address + table_name + ".db";
-    for (const Type_value &value : result) {
+    for (const Type_value &value : values) {
         strncpy(data + offset, value.data(), value.size());
         offset += value.size();
     }
@@ -88,3 +93,27 @@ void Record_manager::insert_table(const Table &table, const std::vector<std::str
     std::vector<Type_info> type_infos = table.get_table_type_infos();
     insert_table(table.name(), type_infos, values);
 }
+
+void Record_manager::clear_table(const Table &table) {
+    std::string path = basic_address + table.name() + ".db";
+    buffer_manager.remove_file(path);
+    buffer_manager.unset_block(path);
+}
+
+size_t Record_manager::delete_table(const Table &table, const std::vector<Condition> conditions) {
+    std::vector<Condition> op_conditions;
+    for(const Condition &condition : conditions){
+        op_conditions.push_back(condition.opposite());
+    }
+    std::vector<std::string> selects;
+    Result_set result_set = select_table(table, selects, op_conditions);
+    clear_table(table);
+    auto &data = result_set.data;
+    for(const std::vector<Type_value> values : data){
+        insert_table(table.name(), values);
+    }
+    return data.size();
+}
+
+
+

@@ -16,8 +16,10 @@ Interpreter::Interpreter(std::istream &_in, std::ostream &_out)
          e_select_condition(select_condition_ptn, std::regex::icase),
          e_create_index(create_index_ptn, std::regex::icase),
          e_drop_index(drop_index_ptn, std::regex::icase),
-         e_qiut(quit_ptn, std::regex::icase),
-         e_execfile(execfile_ptn, std::regex::icase){
+         e_quit(quit_ptn, std::regex::icase),
+         e_execfile(execfile_ptn, std::regex::icase),
+         e_delete(delete_ptn),
+         e_delete_condition(delete_condition_ptn){
     exec_file(in);
 }
 
@@ -79,35 +81,12 @@ bool Interpreter::run(const std::string &command) {
     } else if (std::regex_match(command, m, e_insert)) {
         insert_table(m.str(1), m.str(2));
         out << "finished insert on table " + m.str(1) << std::endl;
-    } else if (std::regex_match(command, m, e_select)) {
-        std::cout << m.str(1) << "|" << m.str(2) << std::endl;
-        std::string selections = string_trim(m.str(1));
-        std::vector<std::string> selects;
-        std::vector<Condition> conditions; // no fill, always true condition
-        if (selections != "*") {
-            string_spilt(selections, selects);
-        }
-        out << api.select_table(m.str(2), selects, conditions);
     } else if (std::regex_match(command, m, e_select_condition)) {
         std::cout << m.str(1) << "|" << m.str(2) << "|" << m.str(3) << std::endl;
-        std::string selections = string_trim(m.str(1));
-        std::vector<std::string> selects;
-        if (selections != "*") {
-            string_spilt(selections, selects);
-        }
-        std::vector<Condition> conditions; // no fill, always true condition
-        std::string condition_query = m.str(3);
-        size_t pos;
-        while (pos = condition_query.find("and"), pos != std::string::npos) {
-            if (condition_query[pos + 3] > ' ') {
-                throw Parse_error("Syntax error in condition sets " + m.str(3));
-            }
-            std::string str = condition_query.substr(0, pos);
-            conditions.push_back(get_condition(str));
-            condition_query = condition_query.substr(pos + 4);
-        }
-        conditions.push_back(get_condition(condition_query));
-        out << api.select_table(m.str(2), selects, conditions);
+        select_table(m.str(1), m.str(2), m.str(3));
+    } else if (std::regex_match(command, m, e_select)) {
+        std::cout << m.str(1) << "|" << m.str(2) << std::endl;
+        select_table(m.str(1), m.str(2));
     } else if (std::regex_match(command, m, e_create_index)) {
         std::string index_name = string_trim(m.str(1)), table_name = string_trim(m.str(2));
         std::string column_name = string_trim(m.str(3));
@@ -122,13 +101,18 @@ bool Interpreter::run(const std::string &command) {
         std::string table_name = string_trim(m.str(1));
         drop_table(table_name);
         out << "succeed to drop table " + table_name << std::endl;
-    } else if (std::regex_match(command, m, e_qiut)) {
+    } else if (std::regex_match(command, m, e_quit)) {
         out << "exit the minisql system" << std::endl;
         return false;
-    } else if (std::regex_match(command, m, e_execfile)) {;
+    } else if (std::regex_match(command, m, e_execfile)) {
         std::string path = fix(string_trim(m.str(1)));
         out << "run sql file... " + path << std::endl;
         on_exec_file(path);
+    } else if (std::regex_match(command, m, e_delete_condition)) {
+        delete_table(m.str(1), m.str(2));
+    } else if (std::regex_match(command, m, e_delete)) {
+        out << "deleting table " << m.str(1);
+        delete_table(m.str(1));
     } else {
         throw Parse_error("Syntax in " + command);
     }
@@ -269,5 +253,44 @@ void Interpreter::on_exec_file(const std::string path) {
     std::ifstream file(path);
     exec_file(file);
     file.close();
+}
+
+void Interpreter::select_table(const std::string &value_lists, const std::string &table_name,
+                               const std::string condition_lists) {
+    std::string selections = string_trim(value_lists);
+    std::vector<std::string> selects;
+    if (selections != "*") {
+        string_spilt(selections, selects);
+    }
+    std::vector<Condition> conditions = analysis_condition(condition_lists); // no fill, always true condition
+    out << api.select_table(table_name, selects, conditions);
+}
+
+void Interpreter::delete_table(const std::string &table_name, const std::string condition_list) {
+    std::vector<Condition> conditions = analysis_condition(condition_list);
+    api.delete_table(table_name, conditions);
+}
+
+std::vector<Condition> Interpreter::analysis_condition(const std::string condition_lists) {
+    std::vector<Condition> conditions;
+    if(condition_lists.size() != 0){
+        std::string condition_query = condition_lists;
+        size_t pos;
+        while (pos = condition_query.find("and"), pos != std::string::npos) {
+            if (condition_query[pos + 3] > ' ') {
+                throw Parse_error("Syntax error in condition sets " + condition_lists);
+            }
+            std::string str = condition_query.substr(0, pos);
+            conditions.push_back(get_condition(str));
+            condition_query = condition_query.substr(pos + 4);
+        }
+        conditions.push_back(get_condition(condition_query));
+    }
+    return conditions;
+}
+
+void Interpreter::delete_table(const std::string &table_name) {
+    const std::vector<Condition> conditions;
+    api.delete_table(table_name, conditions);
 }
 

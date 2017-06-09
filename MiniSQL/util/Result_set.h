@@ -20,6 +20,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const Result_set &result_set);
 
+
 private:
     std::vector<std::vector<Type_value>> data;
     std::vector<Column> value_set;

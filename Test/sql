@@ -1,2 +1,6 @@
+delete from student;
+insert into student values ( "gfdg", "sname_v", 54, "g");
+insert into student values ( "gfdg", "sname_v", 55, "g");
+delete from student where sage = 54;
+select sno, sage from student where sage > 53;
 select * from student;
-select sno, sage from student;

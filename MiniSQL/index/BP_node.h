@@ -16,6 +16,10 @@ struct Key {
 
     Key(const Type_value &_value, const size_t _index) : value(_value), index(_index) {}
 
+    inline Type_name type_name() const {
+        return value.type_name();
+    }
+
     friend bool operator<(const Key &a, const Key &b) {
         return a < b;
     }

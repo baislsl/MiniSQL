@@ -50,6 +50,10 @@ public:
 
     std::vector<size_t> get_offset(const std::vector<std::string> &selects) const;
 
+    std::vector<size_t> get_index(const std::vector<std::string> &selects) const;
+
+    size_t get_column_index(const std::string &column_name) const;
+
     size_t get_column_offset(const std::string &column_name) const;
 
     Column get_column_handler(const std::string &column_name) const {

@@ -64,6 +64,7 @@ void Catalog_manager::drop_table(const std::string &table_name) {
 void Catalog_manager::generate_ptree(ptree &pt) {
     for (auto &value : table_map) {
         const Table &table = value.second;
+        if(table.name().size() == 0) continue;
         ptree p_table;
         p_table.put("name", table.name());
         p_table.put("block", table.get_block_size());
@@ -153,5 +154,18 @@ std::vector<Index> Catalog_manager::get_indexes(const Table &table) const {
             result.push_back(index);
     }
     return result;
+}
+
+void Catalog_manager::update_table_size(const std::string table_name, size_t size) {
+    table_map[table_name].row_number = size;
+}
+
+Index Catalog_manager::get_index(const std::string &index_name) {
+    for(const Index &index : indexes){
+        if(index.index_name == index_name){
+            return index;
+        }
+    }
+    throw Name_not_found_error("No index name " + index_name);
 }
 

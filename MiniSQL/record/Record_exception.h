@@ -15,7 +15,7 @@ public:
     Table_value_not_found_error(const std::string &info) :
             errlog("Table value not found error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 #endif //MINISQL_RECORD_EXCEPTION_H

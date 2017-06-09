@@ -23,11 +23,21 @@ class Condition {
 public:
     Condition(const std::string &name, const std::string &cmp_value, const std::string &relation);
 
+    Condition(const std::string &name, const std::string &cmp_value, const Relation relation);
+
     ~Condition();
 
     void build(const Type_info &type_info);
 
     bool match(const Type_value &value);
+
+    Condition opposite() const {
+        Condition result(_name, _value, opposite_relation(_relation));
+        if(is_build){
+            result.build(*_type_value);
+        }
+        return result;
+    }
 
     inline std::string name() const {
         return _name;
@@ -46,6 +56,10 @@ private:
     std::string _name;
     std::shared_ptr<Type_value> _type_value;
     std::string _value;
+    bool is_build = false;
+
+    Relation opposite_relation(const Relation &relation) const ;
+
 
 };
 

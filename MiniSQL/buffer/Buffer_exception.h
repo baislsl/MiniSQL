@@ -15,7 +15,7 @@ public:
     Block_all_lock_error(const std::string info)
             : errlog("Block all lock error :" + info) {}
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 
@@ -26,7 +26,7 @@ public:
     Fail_open_file_error(const std::string &info)
             : errlog("Fail to open file error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 

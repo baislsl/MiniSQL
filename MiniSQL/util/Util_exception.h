@@ -15,7 +15,7 @@ public:
     Column_not_found_error(const std::string &info) :
             errlog("Column not found error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 class Data_compare_error : public std::exception {
@@ -25,7 +25,7 @@ public:
     Data_compare_error(const std::string &info) :
             errlog("Data compare error : " + info) {};
 
-    virtual const char *what() const throw () { return errlog.c_str(); }
+    virtual const char *what() const noexcept { return errlog.c_str(); }
 };
 
 #endif //MINISQL_UTIL_EXCEPTION_H

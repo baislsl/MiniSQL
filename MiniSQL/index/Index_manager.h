@@ -27,7 +27,7 @@ private:
     const std::string basic_index_address = "../Data/baislsl/";
     Buffer_manager &buffer_manager;
 
-    inline std::string get_path(const Index& index){
+    inline std::string get_path(const Index &index){
         return get_path(index.index_name);
     }
 

@@ -58,7 +58,7 @@ private:
     union {
         int integer;
         double ff;
-        char *cc;
+        char cc[256];
     } value;
 
     void parse_value(const std::string &value_str);
