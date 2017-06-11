@@ -1,13 +1,16 @@
+drop table student;
 create table student (
 		sno char(8),
 		sname char(16) unique,
 		sage int unique,
-		sgender char (1),
+		sgender char (2),
 		primary key( sage,sno)
 );
-insert into student values ( "gfdg", "sname_v", 54, "g");
+insert into student values ( "a1", "a_nam3", 54, "g");
 
-insert into student values ( "gfdg", "sname_v", 54, "g");
+insert into student values ( "b2", "b_name", 100, "bg");
+create index  student_index on student(sname );
+select * from student;
 create index  student_index on student(sname );
 drop index student_index;
 create table primary_test (

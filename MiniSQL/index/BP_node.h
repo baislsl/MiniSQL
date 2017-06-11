@@ -117,7 +117,7 @@ public:
     size_t find_next(const Key &value) const;
 
 private:
-    static const size_t t = ((0x3ff << 2) - 4 * sizeof(size_t ) - sizeof(bool))/(2 * sizeof(Key) + 2*sizeof(size_t)) ;
+    static const size_t t = (4096 - 4 * sizeof(size_t ) - sizeof(bool))/(2 * sizeof(Key) + 2*sizeof(size_t)) ;
     size_t size;
     size_t offset; // offset do not need to store in the file, offset * 4K is the begin address in the file
     int leaf;

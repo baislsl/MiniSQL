@@ -60,6 +60,7 @@ public:
     inline void create_index(const Index &index){
         if(find_index(index))
             throw Conflict_error("Index name " + index.index_name + " has existed!");
+        table_map[index.table_name].add_column_attribute(index.column_name, Column::INDEX);
         indexes.push_back(index);
     }
 

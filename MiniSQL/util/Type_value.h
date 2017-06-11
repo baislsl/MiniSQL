@@ -40,6 +40,8 @@ public:
         return (char *) (&value);
     }
 
+    size_t print_length() const;
+
     friend bool operator<(const Type_value &a, const Type_value &b);
 
     friend bool operator==(const Type_value &a, const Type_value &b);

@@ -15,11 +15,13 @@ class Index_manager {
 public:
     Index_manager(Buffer_manager &_buffer_manager);
 
+    void remove_value(const Index &index, const Type_value &value);
+
     void create_index(Index &index, const std::vector<Type_value> &values);
 
     void drop_index(const Index &index);
 
-    void insert_index_value(Index &index, const Type_value &value, const size_t offset);
+    void insert_index_value(const Index &index, const Type_value &value, const size_t offset);
 
     size_t select(const Index &index, const Type_value &select_value);
 

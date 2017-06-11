@@ -7,7 +7,7 @@
 
 
 bool Condition::match(const Type_value &value) {
-    switch (_relation){
+    switch (_relation) {
         case BIGGER:
             return value > *_type_value;
         case SMALLER:
@@ -24,8 +24,11 @@ bool Condition::match(const Type_value &value) {
 }
 
 void Condition::build(const Type_info &type_info) {
-    _type_value = std::shared_ptr<Type_value>(new Type_value(type_info, _value));
-    is_build = true;
+    if(!is_build){
+        _type_value = std::shared_ptr<Type_value>(new Type_value(type_info, _value));
+        is_build = true;
+    }
+
 }
 
 Condition::~Condition() {
@@ -51,17 +54,23 @@ Condition::Condition(const std::string &name, const std::string &relation, const
 }
 
 Condition::Condition(const std::string &name, const std::string &cmp_value, const Relation relation)
-        :_name(name), _value(cmp_value),  _relation(relation){
+        : _name(name), _value(cmp_value), _relation(relation) {
 
 }
 
 Relation Condition::opposite_relation(const Relation &relation) const {
-    switch (relation){
-        case Relation::BIGGER: return Relation::SMALLER_EQUAL;
-        case Relation::SMALLER: return Relation::BIGGER_EQUAL;
-        case Relation::EQUAL: return Relation::NOT_EQUAL;
-        case Relation::NOT_EQUAL: return Relation::EQUAL;
-        case Relation::SMALLER_EQUAL: return Relation::BIGGER;
-        case Relation::BIGGER_EQUAL: return Relation::SMALLER;
+    switch (relation) {
+        case Relation::BIGGER:
+            return Relation::SMALLER_EQUAL;
+        case Relation::SMALLER:
+            return Relation::BIGGER_EQUAL;
+        case Relation::EQUAL:
+            return Relation::NOT_EQUAL;
+        case Relation::NOT_EQUAL:
+            return Relation::EQUAL;
+        case Relation::SMALLER_EQUAL:
+            return Relation::BIGGER;
+        case Relation::BIGGER_EQUAL:
+            return Relation::SMALLER;
     }
 }

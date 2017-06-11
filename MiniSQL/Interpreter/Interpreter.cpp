@@ -82,10 +82,8 @@ bool Interpreter::run(const std::string &command) {
         insert_table(m.str(1), m.str(2));
         out << "finished insert on table " + m.str(1) << std::endl;
     } else if (std::regex_match(command, m, e_select_condition)) {
-        std::cout << m.str(1) << "|" << m.str(2) << "|" << m.str(3) << std::endl;
         select_table(m.str(1), m.str(2), m.str(3));
     } else if (std::regex_match(command, m, e_select)) {
-        std::cout << m.str(1) << "|" << m.str(2) << std::endl;
         select_table(m.str(1), m.str(2));
     } else if (std::regex_match(command, m, e_create_index)) {
         std::string index_name = string_trim(m.str(1)), table_name = string_trim(m.str(2));

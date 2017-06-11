@@ -120,4 +120,14 @@ void Type_value::parse_value(const std::string &value_str) {
     }
 }
 
+size_t Type_value::print_length() const {
+    if(_type_name == Type_name::CHAR){
+        size_t ans = 0;
+        while(value.cc[ans]) ans++;
+        return ans;
+    }else{
+        return 10;
+    }
+}
+
 

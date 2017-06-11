@@ -57,7 +57,7 @@ void file_IO2() {
 }
 
 void intpre_test(){
-    ifstream in("../Test/sql");
+    ifstream in("../Test/run.sql");
     Interpreter interpreter(in, std::cout);
 }
 

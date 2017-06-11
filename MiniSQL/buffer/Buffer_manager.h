@@ -45,6 +45,7 @@ private:
     size_t power = 0;
     Block blocks[1024];
     char *pool[1024];
+    const size_t _4K = 4096;
 
     void fill_block(Block &block, const std::string &path, const size_t offset, const size_t index);
 

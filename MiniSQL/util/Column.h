@@ -17,6 +17,10 @@ public:
 
     Column(const std::string &name, const Type_info &value_info, const int attr = 0);
 
+    inline bool find_attr(int _attr) const {
+        return (attr & _attr) != 0;
+    }
+
     inline void add_attribute(int _attr) {
         attr |= _attr;
     }

@@ -6,7 +6,7 @@
 
 Buffer_manager::Buffer_manager() {
     for (size_t i = 0; i < 1024; i++) {
-        pool[i] = new char[0x3ff << 2];
+        pool[i] = new char[_4K];
     }
 }
 
@@ -17,8 +17,8 @@ Buffer_manager::~Buffer_manager() {
 }
 
 char *Buffer_manager::read(std::string path, size_t offset, size_t length) {
-    if (length > (0x3ff << 2))
-        throw "Too big memory required to read once";
+    if (length > (0x400 << 2))
+        throw std::runtime_error("Too big memory required to read once");
     size_t index = hash(path);
     while (blocks[index].isLock()) {
         index = (index + 1) & 0x3ff;
@@ -56,15 +56,14 @@ void Buffer_manager::fill_block(Block &block, const std::string &path, const siz
     block.set_attr(Block::USE);
     block.path = path;
     block.address = index;
-    block.length = 0x3ff << 2;
+    block.length = _4K;
     block.offset = offset;
     std::fstream in(address, std::fstream::in);
     if (!in) {
         throw Fail_open_file_error("Fail to open file " + address);
     }
     in.seekg(offset, std::fstream::beg);
-    in.read(pool[block.address], 0x3ff << 2);
-    std::cout << pool[block.address] << std::endl;
+    in.read(pool[block.address], _4K);
     in.close();
 }
 

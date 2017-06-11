@@ -43,7 +43,6 @@ public:
         USE = 1 << 0,
         LOCK = 1 << 1
     };
-private:
 };
 
 

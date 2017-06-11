@@ -18,8 +18,8 @@ BP_tree::BP_tree(const std::string _path, Buffer_manager &_buffer_manager, size_
 }
 
 void BP_tree::insert(const Type_value &value, const size_t index) {
-    Key o(value, index);
-    insert(o);
+    Key key(value, index);
+    insert(key);
 }
 
 void BP_tree::insert(const Key &value) {
@@ -70,8 +70,8 @@ Key BP_tree::select(const Key &value) {
 }
 
 void BP_tree::remove(const Type_value &value) {
-    Key o(value);
-    remove(o);
+    Key key(value);
+    remove(key);
 }
 
 void BP_tree::remove(const Key &value) {
@@ -99,6 +99,7 @@ void BP_tree::remove(const Key &value) {
             }
         }
     }
+    --_size;
 }
 
 void BP_tree::combine(BP_node &left, const BP_node &right, const Key &key) {
@@ -130,7 +131,7 @@ void BP_tree::drop_bp_node(const BP_node &node) {
 }
 
 BP_node BP_tree::read_node(size_t offset) {
-    char *data = buffer_manager.read(path, offset * (0x3ff << 2), 0x3ff << 2);
+    char *data = buffer_manager.read(path, offset * _4K, _4K);
     BP_node node;
     read(&node.leaf, data, sizeof(node.leaf));
     read(&node.size, data, sizeof(node.size));
@@ -158,5 +159,5 @@ void BP_tree::writein_node(const BP_node &node) {
     b_wirte(cur, &node.parent, sizeof(node.parent));
     b_wirte(cur, &node.node, sizeof(node.node));
     b_wirte(cur, &node.next, sizeof(node.next));
-    buffer_manager.write(path, data, node.offset * (0x3ff << 2), 0x3ff << 2);
+    buffer_manager.write(path, data, node.offset * _4K, cur - data + 1);
 }

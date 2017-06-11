@@ -27,10 +27,15 @@ size_t Index_manager::select(const Index &index, const Type_value &select_value)
     return bp_tree.select(select_value).index;
 }
 
-void Index_manager::insert_index_value(Index &index, const Type_value &value, const size_t offset) {
+void Index_manager::insert_index_value(const Index &index, const Type_value &value, const size_t offset) {
     std::string path = get_path(index);
     BP_tree bp_tree(path, buffer_manager, index.size);
     bp_tree.insert(value, offset);
-    index.size = bp_tree.size();
+}
+
+void Index_manager::remove_value(const Index &index, const Type_value &value) {
+    std::string path = get_path(index);
+    BP_tree bp_tree(path, buffer_manager, index.size);
+    bp_tree.remove(value);
 }
 

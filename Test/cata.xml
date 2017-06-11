@@ -16,13 +16,13 @@
             </tb>
             <tb>
                 <name>student</name>
-                <block>29</block>
+                <block>30</block>
                 <size>1</size>
                 <attribute>
-                    <col type="char" attr="0" size="8">sno</col>
-                    <col type="char" attr="1" size="16">sname</col>
-                    <col type="int" attr="1" size="4">sage</col>
-                    <col type="char" attr="0" size="1">sgender</col>
+                    <col type="char" attr="6" size="8">sno</col>
+                    <col type="char" attr="5" size="16">sname</col>
+                    <col type="int" attr="7" size="4">sage</col>
+                    <col type="char" attr="0" size="2">sgender</col>
                 </attribute>
             </tb>
             <tb>
@@ -51,7 +51,19 @@
                 <table>table_name</table>
                 <column>column_name</column>
                 <name>index_name</name>
-                <size>7776768678</size>
+                <size>0</size>
+            </tb>
+            <tb>
+                <table>student</table>
+                <column>sno</column>
+                <name>_sys_student_sno</name>
+                <size>0</size>
+            </tb>
+            <tb>
+                <table>student</table>
+                <column>sage</column>
+                <name>_sys_student_sage</name>
+                <size>0</size>
             </tb>
             <tb>
                 <table>student</table>

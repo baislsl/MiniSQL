@@ -35,6 +35,8 @@ private:
     Buffer_manager &buffer_manager;
     size_t _size;
 
+    const size_t _4K = 4096;
+
     inline void read(void *p, char *&data, size_t size) {
         memcpy(p, data, size);
         data += size;

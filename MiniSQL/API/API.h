@@ -50,6 +50,11 @@ private:
     Buffer_manager  buffer_manager;
     Record_manager record_manager;
     Index_manager index_manager;
+
+
+    std::string default_index_name(const std::string table_name, const std::string column_name) const {
+        return "_sys_" + table_name + "_" + column_name;
+    }
 };
 
 
