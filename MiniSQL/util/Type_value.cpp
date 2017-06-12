@@ -1,6 +1,7 @@
 //
 // Created by baislsl on 17-6-2.
 //
+#include <cfloat>
 #include "Type_value.h"
 #include "Util_exception.h"
 #include "../Interpreter/Interpreter_exception.h"

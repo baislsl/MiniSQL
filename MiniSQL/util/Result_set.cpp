@@ -4,6 +4,8 @@
 
 #include <iomanip>
 #include "Result_set.h"
+#include "Type_value.h"
+#include "Column.h"
 
 Result_set::Result_set() {
 
@@ -17,6 +19,10 @@ Result_set::Result_set(const std::vector<Column> &attributes) {
 }
 
 std::ostream &operator<<(std::ostream &out, const Result_set &result_set) {
+    if(result_set.value_set.size() == 0){
+        out << "No value selected.\n";
+        return out;
+    }
     const std::vector<Column> &values = result_set.value_set;
     const int gap = 2;
     size_t length[values.size()]{0,};

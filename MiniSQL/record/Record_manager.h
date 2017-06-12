@@ -6,14 +6,15 @@
 #define MINISQL_RECORD_MANAGER_H
 
 
-#include "../util/Type_info.h"
-#include "../util/Type_value.h"
-#include "../buffer/Buffer_manager.h"
-#include "../util/Result_set.h"
-#include "../util/Condition.h"
-#include "../util/Table.h"
 #include <vector>
 #include <string>
+#include "../buffer/Buffer_manager.h"
+#include "../util/Result_set.h"
+
+class Condition;
+class Table;
+class Type_info;
+class Type_value;
 
 class Record_manager {
 public:
@@ -40,18 +41,7 @@ public:
      * only select the value lists of a given column
      *
      * */
-    std::vector<Type_value> select_columns(const Table &table, std::string column){
-        std::vector<std::string> selects;
-        selects.push_back(column);
-        std::vector<Condition> conditions;
-        Result_set result_set = select_table(table, selects, conditions);
-        std::vector<Type_value> result;
-        for(const std::vector<Type_value> &value : result_set.data){
-            if(!value.empty())
-                result.push_back(*(value.begin()));
-        }
-        return result;
-    }
+    std::vector<Type_value> select_columns(const Table &table, std::string column);
 
 private:
     Buffer_manager &buffer_manager;

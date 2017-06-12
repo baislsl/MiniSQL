@@ -3,8 +3,9 @@
 //
 
 #include "Table.h"
-#include "../Interpreter/Interpreter_exception.h"
-
+#include "Type_info.h"
+#include "Column.h"
+#include "Condition.h"
 
 Table::Table() {}
 
@@ -122,6 +123,24 @@ size_t Table::get_column_index(const std::string &column_name) const {
             return (size_t)(column - value_list.begin());
     }
     throw Column_not_found_error("No column name " + column_name + " in " + table_name);
+}
+
+Column Table::get_column_handler(const std::string &column_name) const {
+    for(const Column &column : value_list){
+        if(column.name == column_name){
+            return column;
+        }
+    }
+    throw Column_not_found_error("No column name " + column_name + " in " + table_name);
+}
+
+void Table::add_column(const Column &column) {
+    value_list.push_back(column);
+    block_size += column.size();
+}
+
+size_t Table::get_column_number() const {
+    return value_list.size();
 }
 
 

@@ -9,7 +9,6 @@
 #include <cstring>
 #include <iostream>
 #include <cmath>
-#include <values.h>
 
 // with value
 class Type_value : public Type_info {

@@ -1,8 +1,17 @@
 //
 // Created by baislsl on 17-5-30.
 //
-
+#include "../catalog/Catalog_manager.h"
+#include "../record/Record_manager.h"
+#include "../util/Result_set.h"
+#include "../index/Index_manager.h"
+#include "../index/Index.h"
 #include "API.h"
+#include "../catalog/Catalog_exception.h"
+#include "../util/Column.h"
+#include "../util/Type_value.h"
+#include "../util/Condition.h"
+
 
 API::API() : catalog("../Test/cata.xml"),
              buffer_manager(),
@@ -51,7 +60,7 @@ Result_set API::select_table(const std::string &table_name, const std::vector<st
                              std::vector<Condition> &conditions) {
     Table table = catalog.get_table_handler(table_name);
     Index index;
-    if (conditions.size() == 1) {
+    if (conditions.size() == 1 && false) {
         try {
             index = catalog.get_index(table_name, conditions[0].name());
             throw Name_not_found_error("");
@@ -133,4 +142,8 @@ void API::clear_table(const std::string &table_name) {
         catalog.update_index(index);
     }
     record_manager.clear_table(table);
+}
+
+std::string API::default_index_name(const std::string table_name, const std::string column_name) const {
+    return "_sys_" + table_name + "_" + column_name;
 }

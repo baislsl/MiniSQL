@@ -4,7 +4,11 @@
 
 #include "Record_manager.h"
 #include "Record_exception.h"
-
+#include "../util/Type_info.h"
+#include "../util/Type_value.h"
+#include "../util/Condition.h"
+#include "../util/Table.h"
+#include "../util/Column.h"
 Record_manager::Record_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager){
 }
@@ -32,7 +36,11 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
             condition_offset = table.get_offset(conditions),
             select_index = table.get_index(selects);
     std::vector<Column> columns = table.get_table_column();
-    Result_set result_set(columns);
+    std::vector<Column> select_columns;
+    for(size_t i : select_index){
+        select_columns.push_back(columns[i]);
+    }
+    Result_set result_set(select_columns);
     size_t block_size = table.get_block_size(), row_number = table.get_row_number();
     std::string path = basic_address + table.name() + ".db";
     for (size_t i = 0; i < row_number; i++) {
@@ -54,7 +62,7 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
 
         if(flag){
             for (size_t cnt = 0; cnt < select_offset.size(); cnt++) {
-                Column column = result_set.value_set[select_index[cnt]];
+                Column column = result_set.value_set[cnt];
                 size_t length = column.size();
                 char data[length];
                 strncpy(data, cache + select_offset[cnt], length);
@@ -113,6 +121,19 @@ size_t Record_manager::delete_table(const Table &table, const std::vector<Condit
         insert_table(table.name(), values);
     }
     return data.size();
+}
+
+std::vector<Type_value> Record_manager::select_columns(const Table &table, std::string column) {
+    std::vector<std::string> selects;
+    selects.push_back(column);
+    std::vector<Condition> conditions;
+    Result_set result_set = select_table(table, selects, conditions);
+    std::vector<Type_value> result;
+    for(const std::vector<Type_value> &value : result_set.data){
+        if(!value.empty())
+            result.push_back(*(value.begin()));
+    }
+    return result;
 }
 
 

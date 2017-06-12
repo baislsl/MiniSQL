@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+class Block;
 
 /**
  * file : database/table_name.db

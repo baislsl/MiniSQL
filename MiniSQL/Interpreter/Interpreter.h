@@ -6,10 +6,9 @@
 #define MINISQL_INTERPRETER_H
 
 
-#include "../util/Type_value.h"
-#include "../util/Table.h"
-#include "../API/API.h"
+
 #include "Interpreter_exception.h"
+#include "../API/API.h"
 #include <iostream>
 #include <sstream>
 #include <regex>
@@ -88,6 +87,8 @@ private:
     Condition get_condition(const std::string &condition_query);
 
     static std::vector<std::string> string_cmp_split(const std::string &str);
+
+    static std::string rid_comment(const std::string command);
 
     /**
      * rid the string of quotation marks

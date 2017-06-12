@@ -3,6 +3,7 @@
 //
 
 #include "BP_tree.h"
+#include "BP_node.h"
 
 BP_tree::BP_tree(const std::string _path, Buffer_manager &_buffer_manager, size_t size)
         : path(_path), buffer_manager(_buffer_manager), _size(size) {

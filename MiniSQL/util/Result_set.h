@@ -5,10 +5,11 @@
 #ifndef MINISQL_RESULT_SET_H
 #define MINISQL_RESULT_SET_H
 
-#include "Type_value.h"
-#include "Column.h"
+
 #include <iostream>
 #include <vector>
+class Column;
+class Type_value;
 
 class Result_set {
 public:

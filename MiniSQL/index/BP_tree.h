@@ -7,8 +7,12 @@
 
 
 #include "../buffer/Buffer_manager.h"
-#include "BP_node.h"
 #include<unistd.h>
+#include <cstring>
+
+class BP_node;
+class Type_value;
+class Key;
 
 class BP_tree {
 public:

@@ -2,7 +2,9 @@
 // Created by baislsl on 17-6-2.
 //
 #include "Interpreter.h"
-#include "Interpreter_exception.h"
+#include "../util/Type_info.h"
+#include "../util/Column.h"
+#include "../util/Condition.h"
 
 Interpreter::~Interpreter() {
 }
@@ -119,19 +121,30 @@ bool Interpreter::run(const std::string &command) {
 
 void Interpreter::exec_file(std::istream &in) {
     std::string line, input;
-    while (in >> line) {
+    out << "mysql>" << std::flush;
+    while (getline(in, line)) {
+        line = rid_comment(line);
         input.append(line);
         while (input.find(';') != std::string::npos) {
             size_t pos = input.find(';');
             std::string command = input.substr(0, pos);
+
+            out << "\n+----------------------------------------------------+\n"
+                << "running \""
+                << command
+                << "\" ...\n";
+
             input = input.substr(pos + 1);
-            bool result = run(command);
-//                try{
-//                    bool result = run(command);
-//                }catch (const std::exception &e){
-//                    handle_error(e);
-//                }
-            if(!result) return;
+            // bool result = run(command);
+            try{
+                run(command);
+            }catch (const std::exception &e){
+                // handle_error(e);
+                throw e;
+            }
+            // if(!result) return;
+
+            out << "mysql>" << std::flush;
 
         }
         input.append(" ");      // replace '\n' with blank
@@ -290,5 +303,45 @@ std::vector<Condition> Interpreter::analysis_condition(const std::string conditi
 void Interpreter::delete_table(const std::string &table_name) {
     const std::vector<Condition> conditions;
     api.delete_table(table_name, conditions);
+}
+
+std::string Interpreter::rid_comment(const std::string command) {
+    bool cnt_1 = false, cnt_2 = false;
+    bool advance = false;          //advance : true if " appear before '
+    size_t index = 0;
+    while(index < command.length()){
+        if(command[index] == '\''){
+            if(!cnt_1){
+                cnt_1 = true;
+                if(cnt_2){
+                    advance = true;
+                }
+            }else{
+                cnt_1 = false;
+                if(!advance){
+                    cnt_2 = false;
+                }
+            }
+        }else if(command[index] == '\"'){
+            if(!cnt_2){
+                cnt_2 = true;
+                if(cnt_1){
+                    advance = false;
+                }
+            }else{
+                cnt_2 = false;
+                if(advance){
+                    cnt_1 = false;
+                }
+            }
+        }else if(command[index] == '#'){
+            if(!cnt_1 && !cnt_2){
+                return command.substr(0, index);
+            }
+        }
+        index++;
+    }
+    return command;
+
 }
 

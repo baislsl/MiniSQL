@@ -21,11 +21,11 @@ struct Key {
     }
 
     friend bool operator<(const Key &a, const Key &b) {
-        return a < b;
+        return a.value < b.value;
     }
 
     friend bool operator==(const Key &a, const Key &b) {
-        return a == b;
+        return a.value == b.value;
     }
 
     friend bool operator!=(const Key &a, const Key &b) {

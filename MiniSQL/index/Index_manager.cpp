@@ -3,7 +3,9 @@
 //
 
 #include "Index_manager.h"
-
+#include "Index.h"
+#include "BP_tree.h"
+#include "BP_node.h"
 Index_manager::Index_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager) {
 }
@@ -37,5 +39,9 @@ void Index_manager::remove_value(const Index &index, const Type_value &value) {
     std::string path = get_path(index);
     BP_tree bp_tree(path, buffer_manager, index.size);
     bp_tree.remove(value);
+}
+
+std::string Index_manager::get_path(const Index &index) {
+    return get_path(index.index_name);
 }
 

@@ -5,14 +5,12 @@
 #ifndef MINISQL_API_H
 #define MINISQL_API_H
 
-
 #include "../catalog/Catalog_manager.h"
 #include "../record/Record_manager.h"
-#include "../util/Result_set.h"
 #include "../index/Index_manager.h"
-#include "../index/Index.h"
-
-class Buffer_manager;
+class Table;
+class Result_set;
+class Index;
 
 class API {
 public:
@@ -52,9 +50,7 @@ private:
     Index_manager index_manager;
 
 
-    std::string default_index_name(const std::string table_name, const std::string column_name) const {
-        return "_sys_" + table_name + "_" + column_name;
-    }
+    std::string default_index_name(const std::string table_name, const std::string column_name) const;
 };
 
 

@@ -5,10 +5,13 @@
 #ifndef MINISQL_INDEX_MANAGER_H
 #define MINISQL_INDEX_MANAGER_H
 
-#include "../util/Table.h"
-#include "../buffer/Buffer_manager.h"
-#include "Index.h"
-#include "BP_tree.h"
+#include <vector>
+#include <cstddef>
+#include <string>
+class Buffer_manager;
+class Index;
+class BP_tree;
+class Type_value;
 
 class Index_manager {
 
@@ -29,9 +32,7 @@ private:
     const std::string basic_index_address = "../Data/baislsl/";
     Buffer_manager &buffer_manager;
 
-    inline std::string get_path(const Index &index){
-        return get_path(index.index_name);
-    }
+    std::string get_path(const Index &index);
 
     inline std::string get_path(const std::string &index_name){
         return basic_index_address + index_name + ".ind";

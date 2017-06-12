@@ -4,6 +4,10 @@
 
 #include "Catalog_manager.h"
 #include "Catalog_exception.h"
+#include <boost/foreach.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include "../util/Type_info.h"
+#include "../util/Column.h"
 
 
 Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filename) {
@@ -64,7 +68,7 @@ void Catalog_manager::drop_table(const std::string &table_name) {
 void Catalog_manager::generate_ptree(ptree &pt) {
     for (auto &value : table_map) {
         const Table &table = value.second;
-        if(table.name().size() == 0) continue;
+        if (table.name().size() == 0) continue;
         ptree p_table;
         p_table.put("name", table.name());
         p_table.put("block", table.get_block_size());
@@ -122,7 +126,7 @@ Index Catalog_manager::get_index(const std::string &table_name, const std::strin
 
 void Catalog_manager::drop_index(const std::string &index_name) {
     for (auto cur = indexes.begin(); cur != indexes.end(); ++cur) {
-        if (cur->index_name == index_name){
+        if (cur->index_name == index_name) {
             indexes.erase(cur);
             return;
         }
@@ -131,8 +135,8 @@ void Catalog_manager::drop_index(const std::string &index_name) {
 }
 
 bool Catalog_manager::find_index(const std::string &index_name) {
-    for(const Index &index : indexes){
-        if(index.index_name == index_name){
+    for (const Index &index : indexes) {
+        if (index.index_name == index_name) {
             return true;
         }
     }
@@ -140,8 +144,8 @@ bool Catalog_manager::find_index(const std::string &index_name) {
 }
 
 void Catalog_manager::update_index(const Index &new_index) {
-    for(Index& index : indexes){
-        if(index.index_name == new_index.index_name){
+    for (Index &index : indexes) {
+        if (index.index_name == new_index.index_name) {
             index = new_index;
         }
     }
@@ -161,11 +165,44 @@ void Catalog_manager::update_table_size(const std::string table_name, size_t siz
 }
 
 Index Catalog_manager::get_index(const std::string &index_name) {
-    for(const Index &index : indexes){
-        if(index.index_name == index_name){
+    for (const Index &index : indexes) {
+        if (index.index_name == index_name) {
             return index;
         }
     }
     throw Name_not_found_error("No index name " + index_name);
+}
+
+void Catalog_manager::create_index(const Index &index) {
+    if (find_index(index))
+        throw Conflict_error("Index name " + index.index_name + " has existed!");
+    table_map[index.table_name].add_column_attribute(index.column_name, Column::INDEX);
+    indexes.push_back(index);
+}
+
+std::vector<Column> Catalog_manager::get_table_columns(const std::string &table_name) {
+    return table_map[table_name].get_table_column();
+}
+
+std::vector<Column>
+Catalog_manager::get_table_columns(const std::string &table_name, const std::vector<std::string> &selects) {
+    return table_map[table_name].get_table_column(selects);
+}
+
+void Catalog_manager::add_table_row(const std::string &table_name) {
+    table_map[table_name].row_number += 1;
+}
+
+void Catalog_manager::get_table_type_infos(const std::string &table_name, std::vector<Type_info> &type_infos) {
+    table_map[table_name].get_table_type_infos();
+}
+
+std::vector<Type_info>
+Catalog_manager::get_table_type_infos(const std::string &table_name, const std::vector<std::string> &selects) {
+    return table_map[table_name].get_table_type_infos(selects);
+}
+
+Table Catalog_manager::get_table_handler(const std::string &table_name) {
+    return table_map[table_name];
 }
 

@@ -7,13 +7,12 @@
 
 #include "../util/Table.h"
 #include "../index/Index.h"
-#include "Catalog_exception.h"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/foreach.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 #include <map>
-
+class ptree;
+class Column;
+class Type_info;
 using boost::property_tree::ptree;
 
 class Catalog_manager {
@@ -30,39 +29,22 @@ public:
 
     void drop_table(const std::string &table_name);
 
-    inline std::vector<Column> get_table_columns(const std::string &table_name){
-        return table_map[table_name].get_table_column();
-    }
+    std::vector<Column> get_table_columns(const std::string &table_name);
 
-    inline std::vector<Column> get_table_columns(
-            const std::string &table_name, const std::vector<std::string> &selects) {
-        return table_map[table_name].get_table_column(selects);
-    }
+    std::vector<Column> get_table_columns(
+            const std::string &table_name, const std::vector<std::string> &selects);
 
-    inline void add_table_row(const std::string &table_name) {
-        table_map[table_name].row_number += 1;
-    }
+    void add_table_row(const std::string &table_name);
 
-    inline void get_table_type_infos(const std::string &table_name,
-                                     std::vector<Type_info> &type_infos) {
-        table_map[table_name].get_table_type_infos();
-    }
+    void get_table_type_infos(const std::string &table_name,
+                                     std::vector<Type_info> &type_infos);
 
-    inline std::vector<Type_info> get_table_type_infos(
-            const std::string &table_name, const std::vector<std::string> &selects) {
-        return table_map[table_name].get_table_type_infos(selects);
-    }
+    std::vector<Type_info> get_table_type_infos(
+            const std::string &table_name, const std::vector<std::string> &selects);
 
-    inline Table get_table_handler(const std::string &table_name){
-        return table_map[table_name];
-    }
+    Table get_table_handler(const std::string &table_name);
 
-    inline void create_index(const Index &index){
-        if(find_index(index))
-            throw Conflict_error("Index name " + index.index_name + " has existed!");
-        table_map[index.table_name].add_column_attribute(index.column_name, Column::INDEX);
-        indexes.push_back(index);
-    }
+    void create_index(const Index &index);
 
     void drop_index(const std::string &index_name);
 

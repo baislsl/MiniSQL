@@ -5,13 +5,13 @@
 #ifndef MINISQL_TABLE_H
 #define MINISQL_TABLE_H
 
-#include "Type_info.h"
-#include "Column.h"
-#include "Condition.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include "Util_exception.h"
+class Column;
+class Condition;
+class Type_info;
 
 
 class Table {
@@ -22,18 +22,13 @@ public:
 
     Table(const std::string &table_name);
 
-    inline void add_column(const Column &column) {
-        value_list.push_back(column);
-        block_size += column.size();
-    }
+    void add_column(const Column &column);
 
     inline size_t get_block_size() const {
         return block_size;
     }
 
-    inline size_t get_column_number() const {
-        return value_list.size();
-    }
+    size_t get_column_number() const;
 
     inline std::string name() const {
         return table_name;
@@ -56,14 +51,7 @@ public:
 
     size_t get_column_offset(const std::string &column_name) const;
 
-    Column get_column_handler(const std::string &column_name) const {
-        for(const Column &column : value_list){
-            if(column.name == column_name){
-                return column;
-            }
-        }
-        throw Column_not_found_error("No column name " + column_name + " in " + table_name);
-    }
+    Column get_column_handler(const std::string &column_name) const;
 
     std::vector<Column> get_table_column() const;
 
