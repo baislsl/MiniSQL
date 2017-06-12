@@ -19,7 +19,7 @@ create table primary_test (
     primary key(wonder)
 );
 drop table      primary_test ;
-execfile "/home/baislsl/c_c++/MiniSQL/Test/test.sql";
+execfile "/home/baislsl/c_c++/MiniSQL/Tesst/test.sql";
 drop index student_index;
 create index  student_index on student(sname );
 

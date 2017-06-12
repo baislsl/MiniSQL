@@ -9,6 +9,8 @@
 #include "../util/Condition.h"
 #include "../util/Table.h"
 #include "../util/Column.h"
+#include "../catalog/Catalog_exception.h"
+
 Record_manager::Record_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager){
 }
@@ -65,7 +67,7 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
                 Column column = result_set.value_set[cnt];
                 size_t length = column.size();
                 char data[length];
-                strncpy(data, cache + select_offset[cnt], length);
+                memcpy(data, cache + select_offset[cnt], length);
                 Type_info type_info = column.value_type();
                 block_data.push_back(Type_value(type_info, data));
             }
@@ -75,11 +77,26 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
     return result_set;
 }
 
-void Record_manager::insert_table(const std::string &table_name, const std::vector<Type_info> &type_infos,
-                                  const std::vector<std::string> &values) {
+void Record_manager::insert_table(const Table &table, const std::vector<std::string> &values) {
+    std::vector<Type_info> type_infos = table.get_table_type_infos();
     std::vector<Type_value> result(match(type_infos, values));
-    insert_table(table_name,  result);
-
+    Result_set result_set = select_table(table);
+    for(const std::vector<Type_value>& datas : result_set.data){
+        auto i_result = result.begin();
+        auto i_value = datas.begin();
+        auto i_column = result_set.value_set.begin();
+        for( ;
+            i_result != result.end() && i_value != datas.end();
+            ++i_result, ++i_value, ++i_column){
+            if(i_column->find_attr(Column::UNIQUE) || i_column->find_attr(Column::PRIMARY)){
+                if(*i_result == *i_value)
+                    throw Conflict_error(
+                            "Duplicated value for " + i_column->name + " in table " + table.name()
+                    );
+            }
+        }
+    }
+    insert_table(table.name(), result);
 }
 
 void Record_manager::insert_table(const std::string &table_name, const std::vector<Type_value> &values) {
@@ -91,15 +108,10 @@ void Record_manager::insert_table(const std::string &table_name, const std::vect
     size_t offset = 0;
     std::string path = basic_address + table_name + ".db";
     for (const Type_value &value : values) {
-        strncpy(data + offset, value.data(), value.size());
+        memcpy(data + offset, value.data(), value.size());
         offset += value.size();
     }
     buffer_manager.app_write(path, data, size);
-}
-
-void Record_manager::insert_table(const Table &table, const std::vector<std::string> &values) {
-    std::vector<Type_info> type_infos = table.get_table_type_infos();
-    insert_table(table.name(), type_infos, values);
 }
 
 void Record_manager::clear_table(const Table &table) {
@@ -115,6 +127,7 @@ size_t Record_manager::delete_table(const Table &table, const std::vector<Condit
     }
     std::vector<std::string> selects;
     Result_set result_set = select_table(table, selects, op_conditions);
+    std::cout << result_set << std::endl;
     clear_table(table);
     auto &data = result_set.data;
     for(const std::vector<Type_value> values : data){
@@ -134,6 +147,11 @@ std::vector<Type_value> Record_manager::select_columns(const Table &table, std::
             result.push_back(*(value.begin()));
     }
     return result;
+}
+
+Result_set Record_manager::select_table(const Table &table) {
+    std::vector<Condition> tmp; std::vector<std::string> select_tmp;
+    return select_table(table, select_tmp, tmp);
 }
 
 

@@ -21,8 +21,10 @@ public:
     Result_set(const std::vector<Column> &attributes);
 
     friend std::ostream &operator<<(std::ostream &out, const Result_set &result_set);
-private:
+
     static std::ostream &line(std::ostream &out, size_t length[], size_t size);
+private:
+
 };
 
 #endif //MINISQL_RESULT_SET_H

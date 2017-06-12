@@ -20,8 +20,9 @@ Interpreter::Interpreter(std::istream &_in, std::ostream &_out)
          e_drop_index(drop_index_ptn, std::regex::icase),
          e_quit(quit_ptn, std::regex::icase),
          e_execfile(execfile_ptn, std::regex::icase),
-         e_delete(delete_ptn),
-         e_delete_condition(delete_condition_ptn){
+         e_delete(delete_ptn, std::regex::icase),
+         e_delete_condition(delete_condition_ptn, std::regex::icase),
+         e_describe(describe_ptn, std::regex::icase){
     exec_file(in);
 }
 
@@ -31,7 +32,6 @@ void Interpreter::insert_table(const std::string &table_name, const std::string 
     for (std::string &str : items) {
         str = fix(str);
     }
-    std::vector<Condition> conditions;
     api.insert_table(table_name, items);
 }
 
@@ -41,26 +41,26 @@ void Interpreter::create_table(const std::string &table_name, const std::string 
     std::regex e_char(char_ptn, std::regex::icase);
     std::regex e_float_int(float_int_ptn, std::regex::icase);
     std::regex e_primary(primary_key_ptn, std::regex::icase);
-    Table table(table_name);
+    Table table(string_trim(table_name));
     string_spilt(command, items);
     for (std::string str : items) {
-        std::cout << str << std::endl;
+//        std::cout << str << std::endl;
         if (std::regex_match(str, m, e_char)) {
-            std::string column_name = m.str(1),
-                        type_name   = m.str(2),
-                        size        = m.str(3),
-                        unique      = m.str(4);
+            std::string column_name = string_trim(m.str(1)),
+                        type_name   = string_trim(m.str(2)),
+                        size        = string_trim(m.str(3)),
+                        unique      = string_trim(m.str(4));
             Type_info value_info(Type_name::CHAR, atoi(size.c_str()));
             Column column(column_name, value_info, unique.empty() ? 0 : Column::UNIQUE);
             table.add_column(column);
         } else if (std::regex_match(str, m, e_float_int)) {
-            std::string column_name = m.str(1),
-                        type_name   = m.str(2),
-                        unique      = m.str(3);
+            std::string column_name = string_trim(m.str(1)),
+                        type_name   = string_trim(m.str(2)),
+                        unique      = string_trim(m.str(3));
             Type_info value_info(type_name == "float" ? Type_name::FLOAT : Type_name::INT);
             Column column(column_name, value_info, unique.empty() ? 0 : Column::UNIQUE);
             table.add_column(column);
-        } else if (std::regex_match(str, m, e_primary)) { // debug
+        } else if (std::regex_match(str, m, e_primary)) {
             //  std::cout << m.str(1);
             std::vector<std::string> column_names;
             string_spilt(m.str(1), column_names);
@@ -113,6 +113,9 @@ bool Interpreter::run(const std::string &command) {
     } else if (std::regex_match(command, m, e_delete)) {
         out << "deleting table " << m.str(1);
         delete_table(m.str(1));
+    } else if (std::regex_match(command, m, e_describe)) {
+        out << "describe table " << m.str(1);
+        describe_table(string_trim(m.str(1)));
     } else {
         throw Parse_error("Syntax in " + command);
     }
@@ -120,32 +123,28 @@ bool Interpreter::run(const std::string &command) {
 }
 
 void Interpreter::exec_file(std::istream &in) {
-    std::string line, input;
+    std::string line, input, command;
     out << "mysql>" << std::flush;
     while (getline(in, line)) {
         line = rid_comment(line);
         input.append(line);
         while (input.find(';') != std::string::npos) {
             size_t pos = input.find(';');
-            std::string command = input.substr(0, pos);
-
+            command = input.substr(0, pos);
             out << "\n+----------------------------------------------------+\n"
-                << "running \""
+                << "running \n\""
                 << command
                 << "\" ...\n";
-
             input = input.substr(pos + 1);
             // bool result = run(command);
             try{
                 run(command);
             }catch (const std::exception &e){
-                // handle_error(e);
-                throw e;
+                handle_error(e);
+                // throw e;
             }
             // if(!result) return;
-
             out << "mysql>" << std::flush;
-
         }
         input.append(" ");      // replace '\n' with blank
     }
@@ -171,6 +170,7 @@ size_t Interpreter::string_find_comma(const std::string &str) {
 }
 
 std::string Interpreter::string_trim(const std::string &str) {
+    if(str.empty()) return str;
     std::string::size_type begin = 0, end = str.size() - 1;
     while (begin <= end && str[begin] <= ' ') begin++;
     while (begin <= end && str[end] <= ' ') end--;
@@ -181,7 +181,7 @@ void Interpreter::string_spilt(std::string str, std::vector<std::string> &result
     size_t pos;
     result.clear();
     while (pos = string_find_comma(str), pos != std::string::npos) {
-        result.push_back(str.substr(0, pos));
+        result.push_back(string_trim(str.substr(0, pos)));
         str = str.substr(pos + 1);
     }
     result.push_back(string_trim(str));
@@ -343,5 +343,9 @@ std::string Interpreter::rid_comment(const std::string command) {
     }
     return command;
 
+}
+
+void Interpreter::describe_table(const std::string &table_name) {
+    out << api.describe_table(table_name);
 }
 

@@ -63,6 +63,8 @@ public:
 
     std::vector<Type_info> get_table_type_infos(const std::vector<std::string> &selects) const;
 
+    friend std::ostream &operator<<(std::ostream &out, const Table &table);
+
 private:
     size_t block_size = 0;
     size_t row_number = 0;

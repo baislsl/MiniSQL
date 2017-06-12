@@ -29,13 +29,11 @@ public:
 
     void insert_table(const Table &table, const std::vector<std::string> &values);
 
-    void insert_table(const std::string &table_name,
-                      const std::vector<Type_info> &type_infos,
-                      const std::vector<std::string> &values);
-
     Result_set select_table(const Table &table,
                             const std::vector<std::string> &selects,
                             std::vector<Condition> &conditions);
+
+    Result_set select_table(const Table &table);
 
     /**
      * only select the value lists of a given column

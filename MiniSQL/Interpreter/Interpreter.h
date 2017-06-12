@@ -40,11 +40,13 @@ private:
     const std::string quit_ptn = "\\s*quit\\s*";
     const std::string execfile_ptn = "\\s*execfile\\s+(.*)";
     const std::string delete_condition_ptn = "\\s*delete[\\s+]from\\s+(.+)\\s+where[\\s+](.*)";
-    const std::string delete_ptn = "\\s*delete[\\s+]from\\s(.+)\\s*";
+    const std::string delete_ptn = "\\s*delete[\\s+]from\\s+(.+)\\s*";
+    const std::string describe_ptn = "\\s*describe[\\s+](.+)";
 
     std::regex e_create_table, e_drop_table, e_insert, e_select, e_delete_condition, e_delete,
-            e_select_condition, e_create_index, e_drop_index, e_quit, e_execfile;
+            e_select_condition, e_create_index, e_drop_index, e_quit, e_execfile, e_describe;
 
+    void describe_table(const std::string &table_name);
 
     std::vector<Condition> analysis_condition(const std::string condition_lists);
 

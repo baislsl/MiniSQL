@@ -41,7 +41,7 @@ void API::drop_table(const std::string &table_name) {
 
 void API::insert_table(const std::string &table_name, const std::vector<std::string> &items) {
     Table table = catalog.get_table_handler(table_name);
-    record_manager.insert_table(table, items);
+    record_manager.insert_table(table, items);  // solve conflict on unique, primary
     catalog.add_table_row(table.name());
     std::vector<Index> indexes = catalog.get_indexes(table);
     for (Index &index : indexes) {  // update index
@@ -146,4 +146,9 @@ void API::clear_table(const std::string &table_name) {
 
 std::string API::default_index_name(const std::string table_name, const std::string column_name) const {
     return "_sys_" + table_name + "_" + column_name;
+}
+
+Table API::describe_table(const std::string &table_name) {
+    return catalog.get_table_handler(table_name);
+
 }

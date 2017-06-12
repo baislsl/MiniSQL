@@ -32,8 +32,14 @@ Type_value &Type_value::operator=(const Type_value &type_value) {
 Type_value::Type_value(const Type_info &type_info, const char *data)
         :Type_info(type_info.type_name(), type_info.size()){
     switch (_type_name){
-        case Type_name::INT     : value.integer = (int)(*data); break;
-        case Type_name::FLOAT   : value.ff = (double)(*data); break;
+        case Type_name::INT     :
+            memcpy(&value, data, 4);
+            break;
+            // value.integer = (int)(*data); break;
+        case Type_name::FLOAT   :
+            memcpy(&value, data, 8);
+            break;
+            // value.ff = (double)(*data); break;
         case Type_name::CHAR    :
             strncpy(value.cc, data, _size);
             value.cc[_size] = 0;
@@ -81,7 +87,7 @@ bool operator<=(const Type_value &a, const Type_value &b) {
 }
 
 bool operator>=(const Type_value &a, const Type_value &b) {
-    return !(b < a);
+    return !(a < b);
 }
 
 bool operator!=(const Type_value &a, const Type_value &b) {

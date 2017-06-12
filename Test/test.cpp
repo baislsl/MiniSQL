@@ -7,6 +7,7 @@
 #include "../MiniSQL/Interpreter/Interpreter.h"
 #include "../MiniSQL/buffer/Buffer_manager.h"
 #include <fstream>
+#include <iostream>
 
 void test(){
     try{
