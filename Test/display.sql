@@ -29,7 +29,7 @@ INSERT INTO user VALUES ('userid_8', 'password_8', '2017-01-01', '1_baislsl@163.
 # create index 
 CREATE INDEX mail_address_index on user( mail_address);
 CREATE INDEX password_index on user(password);  	# not unique value -> fail
-SELECT * FROM user WHERE maiL_address = '1_baislsl@163.com' ;
+SELECT * FROM user WHERE mail_address = '1_baislsl@163.com' ;
 DROP INDEX mail_address_index;
 
 # delete 

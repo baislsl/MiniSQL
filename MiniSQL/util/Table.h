@@ -20,7 +20,7 @@ class Table {
 public:
     Table();
 
-    Table(const std::string &table_name);
+    explicit Table(const std::string &table_name);
 
     void add_column(const Column &column);
 

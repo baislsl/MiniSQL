@@ -108,8 +108,8 @@ void API::delete_table(const std::string &table_name, const std::vector<Conditio
     } else {
         std::vector<Condition> index_condi(conditions);
         const std::vector<std::string> selects;
-        Result_set deletes = record_manager.select_table(table_name, selects, index_condi);
         const Table table = catalog.get_table_handler(table_name);
+        Result_set deletes = record_manager.select_table(table, selects, index_condi);
         size_t size = record_manager.delete_table(table, conditions);
         catalog.update_table_size(table_name, size);
         std::vector<Index> indexes = catalog.get_indexes(table);

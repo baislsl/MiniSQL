@@ -83,12 +83,12 @@ void type_value_test(){
 
 }
 
-int main(){
-   // type_value_test();
-     intpre_test();
-//    std::string path = "gg.ind";
-//    ofstream out(path);
-//    int g = 10;
-//    out.write((char*)(&g), 3);
-//    out.close();
-}
+//int main(){
+//   // type_value_test();
+//     intpre_test();
+////    std::string path = "gg.ind";
+////    ofstream out(path);
+////    int g = 10;
+////    out.write((char*)(&g), 3);
+////    out.close();
+//}

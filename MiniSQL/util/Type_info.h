@@ -31,26 +31,13 @@ public:
 
     std::string get_type_name() const;
 
-    std::string full_type_name() const {
-        switch (_type_name){
-            case Type_name::INT    : return "int";
-            case Type_name::FLOAT  : return "float";
-            case Type_name::CHAR   :
-                return "char(" + my_itoa(_size) + ")";
-        }
-    }
+    std::string full_type_name() const;
 
 protected:
     Type_name _type_name;
     size_t _size;
 
-    static std::string my_itoa(size_t size){ // 1 <= size <= 255
-        if(size < 10) return std::string(1, size + '0');
-        else if(size < 100)
-            return std::string(1, size/10 + '0') + std::string(1, size%10 + '0');
-        else
-            return std::string(1, size/100 + '0') + std::string(1, size/10 + '0') + std::string(1, size%10 + '0');
-    }
+    static std::string my_itoa(size_t size);
 };
 
 #endif //MINISQL_TYPE_INFO_H

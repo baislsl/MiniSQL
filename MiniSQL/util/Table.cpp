@@ -82,6 +82,7 @@ const Type_info Table::get_column_info(const std::string &column_name) const {
             return column.value_type();
         }
     }
+    throw Column_not_found_error("No column name as " + column_name);
 }
 
 std::vector<Type_info> Table::get_table_type_infos() const {
@@ -148,9 +149,9 @@ size_t Table::get_column_number() const {
 std::ostream &operator<<(std::ostream &out, const Table &table) {
     const static int gap = 2;
     const static std::string tabs[] = {
-            "Field", "Type", "Key", "Unique"
+            "Field", "Type", "Primary", "Unique"
     };
-    size_t length[4]{5, 13, 7, 10};
+    size_t length[4]{5, 13, 11, 10};
     for (const Column &column : table.value_list) { // find the max Field name length
         length[0] = std::max(length[0], column.name.size());
     }

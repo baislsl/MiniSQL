@@ -71,31 +71,9 @@ private:
 
     void drop_table(const std::string &table_name);
 
-    /**
-     * @brief find a comma index that was not include in parentheses
-     * @return the smallest comma index that was not included in parentheses,
-     *          if no such comma, return std::string::npos instead
-     * */
-    static size_t string_find_comma(const std::string &str);
-
-    static std::string string_trim(const std::string &str);
-
-    // split the string by ','
-    static void string_spilt(std::string str, std::vector<std::string> &result);
-
-    /* remove command , not finish yet */
-    static std::string string_simplify(const std::string &str);
 
     Condition get_condition(const std::string &condition_query);
 
-    static std::vector<std::string> string_cmp_split(const std::string &str);
-
-    static std::string rid_comment(const std::string command);
-
-    /**
-     * rid the string of quotation marks
-     * */
-    std::string fix(std::string str);
 };
 
 

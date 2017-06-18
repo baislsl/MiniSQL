@@ -10,6 +10,7 @@
 #include "../util/Table.h"
 #include "../util/Column.h"
 #include "../catalog/Catalog_exception.h"
+#include "../util/String_handler.h"
 
 Record_manager::Record_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager){
@@ -30,7 +31,7 @@ Record_manager::match(const std::vector<Type_info> &type_infos, const std::vecto
 Result_set Record_manager::select_table(const Table &table, const std::vector<std::string> &selects,
                                         std::vector<Condition> &conditions) {
     for(Condition &condition : conditions){
-        Type_info type_info = table.get_column_info(condition.name());
+        Type_info type_info = table.get_column_info(String_handler::trim(condition.name()));
         condition.build(type_info);
     }
 
@@ -53,9 +54,10 @@ Result_set Record_manager::select_table(const Table &table, const std::vector<st
             for(size_t cnt = 0;cnt < condition_offset.size();cnt++){
                 size_t length =conditions[cnt].size();
                 char data[length];
-                strncpy(data, cache + condition_offset[cnt], length);
+                memcpy(data, cache + condition_offset[cnt], length);
                 Type_info type_info = conditions[cnt].type_info();
-                if(!conditions[cnt].match(Type_value(type_info, data))){
+                Type_value type_value(type_info, data);
+                if(!conditions[cnt].match(type_value)){
                     flag = false;
                     break;
                 }
@@ -88,10 +90,15 @@ void Record_manager::insert_table(const Table &table, const std::vector<std::str
         for( ;
             i_result != result.end() && i_value != datas.end();
             ++i_result, ++i_value, ++i_column){
-            if(i_column->find_attr(Column::UNIQUE) || i_column->find_attr(Column::PRIMARY)){
+            if(i_column->find_attr(Column::UNIQUE)){
                 if(*i_result == *i_value)
                     throw Conflict_error(
-                            "Duplicated value for " + i_column->name + " in table " + table.name()
+                            "Duplicated unique value for " + i_column->name + " in table " + table.name()
+                    );
+            }else if(i_column->find_attr(Column::PRIMARY)){
+                if(*i_result == *i_value)
+                    throw Conflict_error(
+                            "Duplicated primary value for " + i_column->name + " in table " + table.name()
                     );
             }
         }
@@ -127,7 +134,7 @@ size_t Record_manager::delete_table(const Table &table, const std::vector<Condit
     }
     std::vector<std::string> selects;
     Result_set result_set = select_table(table, selects, op_conditions);
-    std::cout << result_set << std::endl;
+    // std::cout << result_set << std::endl;
     clear_table(table);
     auto &data = result_set.data;
     for(const std::vector<Type_value> values : data){
