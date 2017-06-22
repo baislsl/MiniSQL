@@ -16,7 +16,7 @@ Buffer_manager::~Buffer_manager() {
     }
 }
 
-char *Buffer_manager::read(std::string path, size_t offset, size_t length) {
+char *Buffer_manager::read(const std::string &path, size_t offset, size_t length) {
     if (length > (0x400 << 2))
         throw std::runtime_error("Too big memory required to read once");
     size_t index = hash(path);

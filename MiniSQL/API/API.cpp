@@ -135,7 +135,7 @@ void API::delete_table(const std::string &table_name, const std::vector<Conditio
 
 void API::clear_table(const std::string &table_name) {
     const Table table = catalog.get_table_handler(table_name);
-    std::vector<Index> indexes = catalog.get_indexes(table);
+    std::vector<Index> indexes = catalog.get_indexes(table_name);
     for (Index &index : indexes) {
         index_manager.drop_index(index);
         index.size = 0;

@@ -69,7 +69,9 @@ class BP_node {
 friend class BP_tree;
 public:
 
-    BP_node() : size(0) {}
+    BP_node() : size(0) {
+        std::cout << "t=" << t;
+    }
 
     inline bool full() const {
         return size == 2 * t;

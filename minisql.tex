@@ -1,0 +1,653 @@
+\documentclass[10pt]{article}
+\usepackage{CJKutf8}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{listings} 
+\usepackage{xcolor}
+\usepackage{float} % figure [H]禁止浮动
+\usepackage{geometry}
+\geometry{left=1.8cm,right=1.8cm,top=2.5cm,bottom=2.5cm}
+\geometry{left = 3cm, right = 3cm}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\title{
+MiniSQL \begin{CJK}{UTF8}{gbsn}实验报告\end{CJK}
+}
+\author{\begin{CJK}{UTF8}{gbsn}3150101225 白升利 \end{CJK}}
+\begin{document}
+	\maketitle
+	\lstset{language=sql, escapeinside=``, breaklines=true, language=C++, tabsize = 4, backgroundcolor=\color{lightgray!40!white}, frame=none,extendedchars=false, keywordstyle=\color{blue!70}\bfseries, basicstyle=\ttfamily,
+		commentstyle=\ttfamily\color{green!40!black}, showstringspaces=false}
+\begin{CJK}{UTF8}{gkai}
+	\section{MINISQL 总体框架}
+	\subsection{MiniSQL 实现功能分析}
+	\begin{enumerate}
+		\item \textbf{总功能:} 允许用户通过字符界面输入 SQL 语句实现表的建立/删除;索引的建立/删除以
+		及表记录的插入/删除/查找;
+		\item \textbf{数据类型:}支持三种基本数据类型: INT , CHAR ( N ), FLOAT ,其中 CHAR ( N )满足 1 <= N <=
+		255;
+		\item \textbf{表定义:}一个表最多可以定义 32 个属性,各属性可以指定是否为 UNIQUE ;支持单属性的
+		主键定义;
+		\item \textbf{索引的建立和删除:}对于表的主属性自动建立 B+树索引,对于声明为 UNIQUE 的属性可以
+		通过 SQL 语句由用户指定建立/删除 B+树索引(因此,所有的 B+树索引都是单属性单值的);	
+		\item \textbf{查找记录:}可以通过指定用 AND 连接的多个条件进行查询,支持等值查询和区间查询;
+		\item \textbf{插入和删除记录:}支持每次一条记录的插入操作;支持每次一条或多条记录的删除操作。
+	\end{enumerate}
+	
+	\subsection{MiniSQL系统体系结构}
+	\begin{center}
+		\begin{figure}[H]
+			\includegraphics[width=1\textwidth]{pic/Top.png}
+		\end{figure}
+	\end{center}
+	
+	\subsection{设计语言与运行环境}
+	语言C++11, 环境:Ubuntu 16.04 LTS
+	boost xml
+	
+	\section{MiniSQL各模块实现功能}
+	\subsection{Interpreter}
+	Interpreter 模块直接与用户交互,主要实现以下功能:
+	\begin{enumerate}
+		\item 程序流程控制,即启动并初始化、接收命令、处理命令、显示命令结果、循环、
+		退出”流程。
+		\item 接收并解释用户输入的命令,生成命令的内部数据结构表示,同时检查命令的语法正
+		确性和语义正确性,对正确的命令调用 API 层提供的函数执行并显示执行结果,对不正确的
+		命令显示错误信息。
+	\end{enumerate}
+	\subsection{API 实现功能}
+	API 模块是整个系统的核心,其主要功能为提供执行 SQL 语句的接口,供
+	Interpreter 层调用。该接口以 Interpreter 层解释生成的命令内部表示为输入,根据
+	Catalog Manager 提供的信息确定执行规则,并调用 Record Manager 、 Index Manager 和
+	Catalog Manager 提供的相应接口进行执行,最后返回执行结果给 Interpreter 模块。
+	\subsection{Catalog Manager 实现功能}
+	Catalog Manager 负责管理数据库的所有模式信息,包括:
+	\begin{enumerate}
+		\item 数据库中所有表的定义信息,包括表的名称、表中字段(列)数、主键、定义在该
+		表上的索引。
+		\item 表中每个字段的定义信息,包括字段类型、是否唯一等。
+		\item 数据库中所有索引的定义,包括所属表、索引建立在那个字段上等。
+		Catalog Manager 还必需提供访问及操作上述信息的接口,供 Interpreter 和 API 模块使用。
+	\end{enumerate}
+	\subsection{Record Manager 实现功能}
+	Record Manager 负责管理记录表中数据的数据文件。主要功能为实现数据文件的创
+	建与删除(由表的定义与删除引起)、记录的插入、删除与查找操作,并对外提供相应的接
+	口。其中记录的查找操作要求能够支持不带条件的查找和带一个条件的查找(包括等值查找、
+	不等值查找和区间查找)。
+	\par 数据文件由一个或多个数据块组成,块大小应与缓冲区块大小相同。一个块中包含
+	一条至多条记录,为简单起见,只要求支持定长记录的存储,且不要求支持记录的跨块存储。
+	\subsection{Index Manager 实现功能}
+	Index Manager 负责 B+树索引的实现,实现 B+树的创建和删除(由索引的定义与删除引
+	起)、等值查找、插入键值、删除键值等操作,并对外提供相应的接口。
+	\subsection{Buffer Manager 实现功能}
+	Buffer Manager 负责缓冲区的管理,主要功能有:
+	\begin{enumerate}
+		\item 根据需要,读取指定的数据到系统缓冲区或将缓冲区中的数据写出到文件
+		\item 实现缓冲区的替换算法,当缓冲区满时选择合适的页进行替换
+		\item 记录缓冲区中各页的状态,如是否被修改过等
+		\item 提供缓冲区页的 pin 功能,及锁定缓冲区的页,不允许替换出去
+	\end{enumerate}
+	提供缓冲区页的 pin 功能,及锁定缓冲区的页,不允许替换出去
+	\subsection{DB Files 实现功能}
+	DB Files 指构成数据库的所有数据文件,主要由记录数据文件、索引数据文件和
+	Catalog 数据文件组成。同时还有写回文件和读取文件的功能
+	
+	\section{支持操作}
+	\begin{enumerate}
+		\item 表格创建, 属性查看和删除, 其中数据类型支持int，char(n)，float(1 <= n <= 255)
+				支持primary属性, unique属性,
+		\begin{lstlisting}[language = sql]
+CREATE TABLE user (
+	user_id       char(20),
+	password      char(20),
+	register_time char(30),
+	mail_address  char(20) unique,
+	age           int,
+	pow           float,
+	PRIMARY KEY (user_id)
+);
+DESCRIBE user;
+DROP TABLE user;
+		\end{lstlisting}
+		\item 表格信息插入
+		
+		\begin{lstlisting}[language = sql]
+INSERT INTO user VALUES ('userid_1', 'password_1', '2017-01-01', '1_baislsl@163.com', 20, 0.5);		
+		\end{lstlisting}
+		\item select表格数据, 支持无条件和多个and条件的$\{<, >, =, >=, <=, !=\}$筛选
+		\begin{lstlisting}[language = sql]
+# select
+SELECT * FROM user;
+SELECT user_id, age, pow FROM user WHERE age = 20;
+SELECT user_id, age, pow FROM user WHERE age >= 18 and pow > 0.5;		
+		\end{lstlisting}
+		\item 删除表格记录, 支持无条件删除和多个and条件的$\{<, >, =, >=, <=, !=\}$筛选删除
+		\begin{lstlisting}[language = sql]
+# delete 
+DELETE FROM user;
+DELETE FROM user WHERE age < 18;
+DELETE FROM user WHERE age < 18 and pow > 0.5;		
+		\end{lstlisting}
+		\item 索引创建和删除
+		\begin{lstlisting}[language = sql]
+# create index 
+CREATE INDEX mail_address_index on user( mail_address);
+DROP INDEX mail_address_index;
+		\end{lstlisting}
+		\item 执行文件, 退出, 单行注释 每行第一不包括在字符串内的'\#'及后面的字符无效
+		\begin{lstlisting}[language = sql]
+# quit
+quit
+# exefile
+execfile filename
+		\end{lstlisting}
+	\end{enumerate}
+	
+	\section{各部分实现细节}
+		\subsection{Interpreter}
+		使用C++库提供的正则表达式抓取语句, 主要为C++程序问题, 与数据库关联不大, 这里不详细阐述.
+		
+	\subsection{API}
+API是系统核心部分, 这部分统一管理Catalog\_manager, Record\_manager和Index\_manager, 从Interpreter中接收到用户输入的命令, 统一协调Catalog\_manager,Record\_manager和Index\_manager, 调用这3部分提供的借口执行命令, 为了各个部分相对独立,API不直接调用Buffer\_manager, 只是通过调用上述3大模块间接读取和写入DB Files. 
+API的设置很大程度上可以避免系统管理混乱, 他扶着接受Interpreter信息后调用各个木块的接口, 其程序逻辑操作不多, 主要为各个模块接口的协调调用, 从而高效有序的实现命令.
+\\
+这里以"delete from user"为例,分析API的工作方式, 首先Interpreter通过正则表达式分析出该命令为清楚表格记录命令, 同时提取出表格明"user"传递给API, API首先根据表名user调用Catalog manager的get\_table\_handler获取该表的定义信息, 包括数据名称,类型, 表格大小, 同时也根据表名user调用Catalog manager get\_indexes接口获取定义在该表上的所有索引, 如果数据库中并没有名为user的表, Catalog\_manager在这里会抛出异常终端API的继续执行, 将信息反馈给用户. 如果一次正常, API将调用Index\_manager的drop\_index接口清空所有的索引数据, 同时更新Catalog Manager表大小的缓存数据, 最后调用Record\_manger的clear\_table清空表数据, 由Record\_manager负责对储存表数据的DB files进行操作. 下面是一个用户输入"delete from user" 命令后的流程图.
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width = 0.6\textwidth]{pic/CLI_delete.png}
+		\caption{输入delete from user命令后程序流程图}
+	\end{center}
+\end{figure}
+
+		\subsection{Catalog\_manager}
+		\subsubsection{基本实现}
+	\par Catalog\_manager读取数据库中所有的表的定义, 包括每一个属性的名称,类型和大小,是否primary, unique等, 同时记录下所有已经建立的Index的定义. 
+	\par 程序开始时Catalog\_manager会从cata.xml读取所有上面的信息, 这部分数据比较小, 所以在整个程序生命中始终保存在缓存中. 在程序正常结束时,该部分会自动将整个所有的改变保存回cata.xml文件.
+	\par Catalog\_manager开放借口供API读取所需要的Tabel和Index数据,同时 提供接口共API改变Table和Index的数据, 使用boost库读取xml文件内容.
+	\par 下面是一个cata.xml的例子:
+\begin{lstlisting}[language=xml]
+<?xml version="1.0" encoding="utf-8"?>
+<minisql>
+    <table>
+        <list>
+            <tb>
+                <name>student</name>
+                <block>30</block>
+                <size>1</size>
+                <attribute>
+                    <col type="char" attr="6" size="8">sno</col>
+                    <col type="char" attr="5" size="16">sname</col>
+                    <col type="int" attr="7" size="4">sage</col>
+                    <col type="char" attr="0" size="2">sgender</col>
+                </attribute>
+            </tb>
+            <tb>
+                <name>user</name>
+                <block>102</block>
+                <size>0</size>
+                <attribute>
+                    <col type="char" attr="6" size="20">user_id</col>
+                    <col type="char" attr="0" size="20">password</col>
+                    <col type="char" attr="0" size="30">register_time</col>
+                    <col type="char" attr="5" size="20">mail_address</col>
+                    <col type="int" attr="0" size="4">age</col>
+                    <col type="float" attr="0" size="8">pow</col>
+                </attribute>
+            </tb>
+        </list>
+    </table>
+    <index>
+        <list>
+            <tb>
+                <table>user</table>
+                <column>user_id</column>
+                <name>_sys_user_user_id</name>
+                <size>0</size>
+            </tb>
+            <tb>
+                <table>student</table>
+                <column>sno</column>
+                <name>_sys_student_sno</name>
+                <size>1</size>
+            </tb>
+            <tb>
+                <table>student</table>
+                <column>sname</column>
+                <name>student_index</name>
+                <size>1</size>
+            </tb>
+        </list>
+    </index>
+</minisql>
+\end{lstlisting}
+该xml存放了两个table的定义, 分别为student和user.各个属性定义如下:
+\begin{enumerate}
+	\item name : 表格名称
+	\item block : 表格一组数据占的数据大小
+	\item size :表格中已经储存的数据量
+	\item attribute : 表格所有属性
+		\subitem col :　属性名称
+		\subitem type : 数据类型
+		\subitem size : 数据大小, 其中int恒定为4, float恒定为8
+		\subitem attr : 属性primary, unqiue, index定义, 二进制下attr[0]为1则该属性为unqiue, attr[1]为1则该属性为primary, attr[2]为1表示已经在该属性创建index.
+\end{enumerate}
+该xml还存放了3个index的定义, 分别为\_sys\_user\_id, \_sys\_student\_sno, student\_index.
+index各个属性定义如下:
+\begin{enumerate}
+	\item table : index创建基于的表格名称
+	\item column : index对应的属性名称
+	\item name : index的名称, 对于定义为primary的属性系统会自动建立索引, 为了方便起见系统自动创建的索引名称一律为 "\_sys\_tableName\_columnName"
+	\item size : 索引对应表格的数据数量
+\end{enumerate}
+	 \subsubsection{代码分析}
+	 Catalog\_manager启动时读取xml文件, 读取table数据和index数据
+\begin{lstlisting}
+Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filename) {
+    ptree pt;
+    read_xml(filename, pt);
+    BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.table.list")) {
+        Table table;
+        table.table_name = list.second.get<std::string>("name");
+        table.row_number = list.second.get<int>("size");
+        size_t block_size = list.second.get<size_t>("block");
+        BOOST_FOREACH(const ptree::value_type &item, list.second.get_child("attribute")) {
+            std::string column_name = std::move(item.second.data());
+            std::string type_str = item.second.get<std::string>("<xmlattr>.type");
+            size_t size = item.second.get<size_t>("<xmlattr>.size");
+            int attr = item.second.get<int>("<xmlattr>.attr");
+            Type_info type_info(type_str, size);
+            Column column(column_name, type_info, attr);
+            table.add_column(column);
+        }
+        table_map[table.table_name] = table;
+    }
+    BOOST_FOREACH(const ptree::value_type &list, pt.get_child("minisql.index.list")) {
+        Index index;
+        index.table_name = list.second.get<std::string>("table");
+        index.column_name = list.second.get<std::string>("column");
+        index.index_name = list.second.get<std::string>("name");
+        index.size = list.second.get<size_t>("size");
+        indexes.push_back(index);
+    }
+}
+\end{lstlisting}
+	Catalog\_manager在程序结束时制动触发将数据重新存回到cata.xml文件中
+\begin{lstlisting}
+Catalog_manager::~Catalog_manager() {
+    ptree pt;
+    generate_ptree(pt);
+    write_xml(filename, pt);
+}
+void Catalog_manager::generate_ptree(ptree &pt) {
+    for (auto &value : table_map) {
+        const Table &table = value.second;
+        if (table.name().size() == 0) continue;
+        ptree p_table;
+        p_table.put("name", table.name());
+        p_table.put("block", table.get_block_size());
+        p_table.put("size", table.get_row_number());
+        ptree col_list;
+        for (const Column &column : table.value_list) {
+            ptree col;
+            col.put("", column.name);
+            col.put("<xmlattr>.type", column.get_type_name());
+            col.put("<xmlattr>.attr", column.attr);
+            col.put("<xmlattr>.size", column.type_size());
+            p_table.add_child("attribute.col", col);
+        }
+        pt.add_child("minisql.table.list.tb", p_table);
+    }
+    for (const Index &index : indexes) {
+        ptree p_index;
+        p_index.put("table", index.table_name);
+        p_index.put("column", index.column_name);
+        p_index.put("name", index.index_name);
+        p_index.put("size", index.size);
+        pt.add_child("minisql.index.list.tb", p_index);
+    }
+}
+\end{lstlisting}
+	\subsection{Record\_manager}
+	\subsubsection{基本实现}
+	命令的主体执行部分, 由API调用, 通过Buffer\_manager读取和写入DB Files文件.该部分是API与低层数据交互的直接模块, 是命令的记录读写的主题执行者, 同时检查插入时的unique/primary属性数据冲突与否, 主要为C++程序问题, 与数据库关联不大, 这里不详细阐述.
+	\subsection{Index\_manager}
+		\subsubsection{基本实现}
+这部分负责B+树索引的实现, 是实验后期最困难的一部分. Index\_manager负责所有index对应B+树的创建和删除(由索引的定义与删除引起)、等值查找、插入键值、删除键值等操作,并对外提供相应的接口。到目前为止这次project的Index\_manager能够保证基本的创建, 删除, 插入等操作, 但是查找只支持等值查找, $(>, <, >=, <=)$ 目前尚且不支持使用调用Index\_manager实现快速查找. 
+\\
+ Index\_manager具体实现时会根据索引对应的存放文件, 从B+树根节点开始不断读取搜索知道完成操作为止, Index\_manager具体的实现交由B+树完成, B+树的操作是Index\_manger的核心. 
+
+每一个Index对应存储B+树节点索引的文件名为 "index\_name.ind", 类似表记录储存方式, 所有Index文件记录均采用二进制直接读写.
+		\subsubsection{代码分析}
+每个B+树节点数据定义如下
+\begin{lstlisting}[language=c++]
+class BP_node {
+private:
+    static const size_t t = (4096 - 4 * sizeof(size_t ) - sizeof(bool))/(2 * sizeof(Key) + 2*sizeof(size_t)) ;
+    size_t size;
+    size_t offset; // offset do not need to store in the file, offset * 4K is the begin address in the file
+    int leaf;
+    Key node[2 * t];
+    size_t next[2 * t + 1];
+    size_t parent;
+};
+\end{lstlisting}
+用下一个数据的位置下表作为寻找下一个节点的关键词, 类型Key同时包含了数据(char, int, float)的定义和下标索引的定义,其中对数据的存储使用冗余结构(统一数据最大为256, 即char的最大值)  t表示B+树的叉数, 实验每个数据块大小定义为4K, 经过计算该实验中t = 7.
+另外B+树Node在写入文件时数据顺序依次为leaf, size, parent, node, next, 读入时按这个顺序读入.
+其读写代码如下:
+\begin{lstlisting}
+// write BP node
+inline void b_wirte(char *&p, const void *data, size_t size) {
+    memcpy(p, data, size);
+    p += size;
+}
+void BP_tree::writein_node(const BP_node &node) {
+    char data[_4K];
+    char *cur = data;
+    b_wirte(cur, &node.leaf, sizeof(node.leaf));
+    b_wirte(cur, &node.size, sizeof(node.size));
+    b_wirte(cur, &node.parent, sizeof(node.parent));
+    b_wirte(cur, &node.node, sizeof(node.node));
+    b_wirte(cur, &node.next, sizeof(node.next));
+    buffer_manager.write(path, data, node.offset * _4K, cur - data + 1);
+}
+
+// read BP node
+BP_node BP_tree::read_node(size_t offset) {
+    char *data = buffer_manager.read(path, offset * _4K, _4K);
+    BP_node node;
+    read(&node.leaf, data, sizeof(node.leaf));
+    read(&node.size, data, sizeof(node.size));
+    read(&node.parent, data, sizeof(node.parent));
+    read(&node.node, data, sizeof(node.node));
+    read(&node.next, data, sizeof(node.next));
+    node.offset = offset;
+    return node;
+}
+\end{lstlisting}
+	
+	\subsection{Buffer\_manager 与 DB files}
+	\subsubsection{基本实现}
+	Buffer\_manager数据读写全部是基于二进制的数据直接读写, 每个缓冲块数据大小为4K.基于hash的缓冲区实现替换算法, 读取时接收到一个读取任务时, 根据hash值找到对应的缓冲块, 如果缓冲块对应的文件记录正是当前文件且数据已经在缓冲块中直接读取缓冲数据即可, 否则将文件对应的数据读入到缓冲区中并返回对应的数据. 写入分为重新写入和添加写入两种, 写入成功后将对应的缓冲块记为无效的. 
+	\\
+	关于表数据记录的文件存储, 为了实现高效的内存管理, DB files全部直接采用二进制读写数据, 每个表的数据存在特定目录下"table\_name.db"的二进制文件下, index数据存在"index\_name.ind"二进制文件下. 以表格数据为例, 对于一个以下定义的student表, 其数据目前只有一条("b2", "b\_name", 100, "bg"), 那么student.db文件会依次存放"b2", "b\_name", 100, "bg"二进制下的数据, 注意到对于特定表每组数据总和是一定的, 当插入第二组记录时直接在后面添加即可, 读取根据每组记录特定大小便能够将不同组数据区分开.
+		\begin{figure}[H]
+			\includegraphics[width=1\textwidth]{pic/student.png} \\ 
+			\includegraphics[width=1\textwidth]{pic/student_db.png}
+		\end{figure}
+	
+	\subsubsection{代码分析}
+hash算法实现, 基于文件名称进行hash, 得出一个[0, 1024)的结果
+\begin{lstlisting}
+size_t Buffer_manager::hash(const std::string &str) {
+    size_t ans = 0;
+    for (size_t i = 0; i < str.size(); i++) {
+        ans ^= (str[i] * str[i] - i) & 0x3ff;
+    };
+    return (ans * ans) & 0x3ff;
+}
+\end{lstlisting}
+读取实现, 先得出hash值, 如果hash值对应的缓冲块无效, hash值加一知道对应的缓冲块有效, 如果要读取的数据不在缓冲内则重新读取
+\begin{lstlisting}
+char *Buffer_manager::read(const std::string &path, size_t offset, size_t length) {
+    if (length > (0x400 << 2))
+        throw std::runtime_error("Too big memory required to read once");
+    size_t index = hash(path);
+    while (blocks[index].isLock()) {
+        index = (index + 1) & 0x3ff;
+    }
+
+    Block &block = blocks[index];
+    if (block.inUse() && path == block.path && cover(block.offset, block.length, offset, length)) {
+        block.power = ++power;
+        if (power == 0) {
+           reset_power();
+        }
+    } else {    /// no memory in the cache
+        fill_block(block, path, offset, index);
+    }
+    return pool[block.address] + offset - block.offset;
+}
+\end{lstlisting}
+缓冲块读入时一次性从文件中读入4K大小的数据, 记录下缓冲块数据在文件的偏移量, 同时设置该缓冲块属性为有效
+\begin{lstlisting}
+void Buffer_manager::fill_block(Block &block, const std::string &path, const size_t offset, const size_t index) {
+    std::string address = path;
+    block.set_attr(Block::USE);
+    block.path = path;
+    block.address = index;
+    block.length = _4K;
+    block.offset = offset;
+    std::fstream in(address, std::fstream::in);
+    if (!in) {
+        throw Fail_open_file_error("Fail to open file " + address);
+    }
+    in.seekg(offset, std::fstream::beg);
+    in.read(pool[block.address], _4K);
+    in.close();
+}
+\end{lstlisting}
+	
+	\section{各部分提供对外接口列表}
+\subsection{Interpreter}
+\begin{lstlisting}
+void exec_file(std::istream &in);
+\end{lstlisting}
+
+\subsection{API}
+	\begin{lstlisting}
+Table describe_table(const std::string &table_name);
+void clear_table(const std::string &table_name);	
+void delete_table(const std::string &table_name, 
+				  const std::vector<Condition> &conditions);
+void create_table(const Table& table);	
+void drop_table(const std::string &table_name);
+Result_set select_table(const std::string &table_name,
+						const std::vector<std::string> &selects,
+						std::vector<Condition> &conditions );
+bool create_index(const std::string &index_name, 
+				  const std::string &table_name,
+				  const std::string &column_name);	
+bool drop_index(const std::string &index_name);
+	\end{lstlisting}
+
+
+\subsection{Catalog\_manager}
+	\begin{lstlisting}
+void update_table_size(const std::string table_name, size_t size);
+void read_menu_titles(std::vector<std::string> &result) const;	
+void create_table(const Table &table);	
+void drop_table(const std::string &table_name);	
+void add_table_row(const std::string &table_name);	
+Table get_table_handler(const std::string &table_name);	
+void create_index(const Index &index);	
+void drop_index(const std::string &index_name);	
+bool find_index(const std::string &index_name);	
+std::vector<Index> get_indexes(const Table &table) const;	
+void update_index(const Index& new_index);	
+Index get_index(const std::string &table_name, const std::string &column_name);
+Index get_index(const std::string &index_name);
+	\end{lstlisting}
+\subsection{Record\_manager}
+	\begin{lstlisting}
+void insert_table(const std::string &table_name, const std::vector<Type_value> &values);	
+void clear_table(const Table &table);	
+size_t delete_table(const Table &table, const std::vector<Condition> conditions);	
+void insert_table(const Table &table, const std::vector<std::string> &values);	
+Result_set select_table(const Table &table,
+                        const std::vector<std::string> &selects,
+                        std::vector<Condition> &conditions);	
+Result_set select_table(const Table &table);	
+std::vector<Type_value> select_columns(const Table &table, std::string column);	
+	\end{lstlisting}
+\subsection{Index\_manager}
+\begin{lstlisting}
+Table describe_table(const std::string &table_name);	
+void remove_value(const Index &index, const Type_value &value);	
+void create_index(Index &index, const std::vector<Type_value> &values);	
+void drop_index(const Index &index);	
+void insert_index_value(const Index &index, const Type_value &value, const size_t offset);
+size_t select(const Index &index, const Type_value &select_value);	
+\end{lstlisting}
+\subsection{Buffer\_manager}
+\begin{lstlisting}
+char *read(const std::string &path, size_t offset, size_t length);	
+void app_write(const std::string &path, char *data, size_t length);	
+void write(const std::string &path, char *data, size_t offset, size_t length);	
+void unset_block(const std::string path);	
+void remove_file(const std::string &path);	
+\end{lstlisting}
+
+	\section{MINISQL 系统测试}
+	\begin{itemize}
+		\item 删除表:
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/dropTable.png}
+			\end{center}
+		\end{figure}
+		\item 创建表
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/createTable.png}
+			\end{center}
+		\end{figure}
+		\item 查看表属性
+			\begin{figure}[H]
+				\begin{center}
+					\includegraphics[width=1\textwidth]{pic/desrcibe.png}
+				\end{center}
+			\end{figure}
+		\item 插入数据
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/insert.png}
+			\end{center}
+		\end{figure}
+		\item 无条件查找
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/select1.png}
+			\end{center}
+		\end{figure}
+		\item 单条件查找
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/select1.png}
+			\end{center}
+		\end{figure}
+		\item 多条件and的查找
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/select2.png}
+			\end{center}
+		\end{figure}
+		\item primary冲突插入失败
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/insertFail1.png}
+			\end{center}
+		\end{figure}
+		\item unqiue属性重复插入失败
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/insertFail2.png}
+			\end{center}
+		\end{figure}
+		\item 创建索引
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/createIndex.png}
+			\end{center}
+		\end{figure}
+		\item 删除索引
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/dropIndex.png}
+			\end{center}
+		\end{figure}
+		\item 有条件删除和删除后结果
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/delete1.png}
+			\end{center}
+		\end{figure}
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/deleteSelect1.png}
+			\end{center}
+		\end{figure}
+		\item 无条件删除和删除后结果
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/delete2.png}
+			\end{center}
+		\end{figure}
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/deleteSelect2.png}
+			\end{center}
+		\end{figure}
+		\item quit退出
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=1\textwidth]{pic/quit.png}
+			\end{center}
+		\end{figure}
+	\end{itemize}
+测试代码
+\begin{lstlisting}[language=sql]
+DROP TABLE user;
+CREATE TABLE user (
+  user_id       char(20),
+  password      char(20),
+  register_time char(30),
+  mail_address  char(20) unique,
+  age           int,
+  pow           float,
+  PRIMARY KEY (user_id)
+);
+DESCRIBE user;
+INSERT INTO user VALUES ('userid_1', 'password_1', '2017-01-01', '1_baislsl@163.com', 20, 0.5);
+INSERT INTO user VALUES ('userid_2', 'password_2', '2017-02-02', '2_baislsl@163.com', 17, 0.45);
+INSERT INTO user VALUES ('userid_3', 'password_3', '2017-03-03', '3_baislsl@163.com', 22, 0.77);
+INSERT INTO user VALUES ('userid_4', 'password_4', '2017-04-04', '4_baislsl@163.com', 19, 0.9);
+INSERT INTO user VALUES ('userid_5', 'password_5', '2017-05-05', '5_baislsl@163.com', 18, 1.0);
+INSERT INTO user VALUES ('userid_6', 'password_6', '2017-06-06', '6_baislsl@163.com', 20, 0.3);
+INSERT INTO user VALUES ('userid_7', 'password_7', '2017-07-07', '7_baislsl@163.com', 24, 0.2);
+
+# select
+SELECT * FROM user;
+SELECT user_id, age, pow FROM user WHERE age = 20;
+SELECT user_id, age, pow FROM user WHERE age >= 18 and pow > 0.5;
+
+# error test, duplicated primary key and unique mail_address;
+INSERT INTO user VALUES ('userid_1', 'password_8', '2017-01-01', '8_baislsl@163.com', 20, 0.5);
+INSERT INTO user VALUES ('userid_8', 'password_8', '2017-01-01', '1_baislsl@163.com', 20, 0.5);
+
+# create index 
+CREATE INDEX mail_address_index on user( mail_address);
+CREATE INDEX password_index on user(password);  	# not unique value -> fail
+SELECT * FROM user WHERE mail_address = '1_baislsl@163.com' ;
+DROP INDEX mail_address_index;
+
+# delete 
+SELECT * FROM user;	# before delete
+DELETE FROM user WHERE age < 18;
+SELECT * FROM user;  # after delete
+DELETE FROM user;
+SELECT * FROM user;  # after delete
+
+# quit
+quit;
+
+\end{lstlisting}
+\end{CJK}
+\end{document}
+
+
+
+
+
+

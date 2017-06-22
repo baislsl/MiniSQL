@@ -32,7 +32,7 @@ public:
 
     /// length in 4(int), 8(float/double), 1-255(char[])
     /// note that the length can not be over the max size of a block
-    char *read(std::string path, size_t offset, size_t length);
+    char *read(const std::string &path, size_t offset, size_t length);
 
     void app_write(const std::string &path, char *data, size_t length);
 

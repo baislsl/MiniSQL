@@ -54,6 +54,8 @@ public:
 
     bool find_index(const std::string &index_name);
 
+    std::vector<Index> get_indexes(const std::string &table_name) const;
+
     std::vector<Index> get_indexes(const Table &table) const;
 
     void update_index(const Index& new_index);

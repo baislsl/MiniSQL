@@ -151,13 +151,17 @@ void Catalog_manager::update_index(const Index &new_index) {
     }
 }
 
-std::vector<Index> Catalog_manager::get_indexes(const Table &table) const {
+std::vector<Index> Catalog_manager::get_indexes(const std::string &table_name) const{
     std::vector<Index> result;
     for (const Index &index : indexes) {
-        if (index.table_name == table.name())
+        if (index.table_name == table_name)
             result.push_back(index);
     }
     return result;
+}
+
+std::vector<Index> Catalog_manager::get_indexes(const Table &table) const {
+    return get_indexes(table.name());
 }
 
 void Catalog_manager::update_table_size(const std::string table_name, size_t size) {

@@ -4,7 +4,10 @@
 
 #include <iostream>
 #include "MiniSQL/Interpreter/Interpreter.h"
+#include "MiniSQL/index/BP_node.h"
 
-int main(){
+int main() {
     // std::ifstream in("../Test/run.sql");
-    Interpreter interpreter(std::cin, std::cout);}
+    BP_node node;
+    Interpreter interpreter(std::cin, std::cout);
+}

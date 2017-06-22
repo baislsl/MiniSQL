@@ -21,8 +21,6 @@ public:
 
     void exec_file(std::istream &in);
 
-    void handle_error(const std::exception &e);
-
 private:
     API api;
     std::ostream &out;
@@ -71,6 +69,7 @@ private:
 
     void drop_table(const std::string &table_name);
 
+    void handle_error(const std::exception &e);
 
     Condition get_condition(const std::string &condition_query);
 
