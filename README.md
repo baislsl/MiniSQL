@@ -18,33 +18,4 @@ a mini SQL engine
 询。支持每次一条记录的插入操作;支持每次一条或多条记录的删除操作。
 
 ## 设计
-- 条件一个 conditionSet
-- Table 
-- index
-- result set 
-- 文件格式 xml ? json ? 自定义?
-- error code handler
-- B+ Tree
-- buffer manager 一次性读取文件4K,记录下读下的数据区间, 每次访问数据时先查看是否在缓存中,若不在,继续读取4K,针对性的读取
-Interpreter :
-    create : 生成table请求
-    select : 
-    drop
-    
-    --> API 
-    
-    -->
-
-double/float = 4 bit
-
-database/table_name:
-    000000_0000_000_
-## b+ tree
-一个b+树数据建立在同一个文件内, 一个node的标记为偏移量和节点数
-
-## need to do 
-delete from 
-
-result set output 
-
-insert, delete -> update indexes
+本作业为课程作业，具体设计见minisql.tex报告
