@@ -3,7 +3,7 @@
 //
 
 #include "String_handler.h"
-#include "../Interpreter/Interpreter_exception.h"
+#include "Interpreter_exception.h"
 
 size_t String_handler::find_comma(const std::string &str) {
     int count = 0;

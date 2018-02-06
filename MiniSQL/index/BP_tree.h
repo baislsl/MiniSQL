@@ -6,7 +6,7 @@
 #define MINISQL_BP_TREE_H
 
 
-#include "../buffer/Buffer_manager.h"
+#include "Buffer_manager.h"
 #include<unistd.h>
 #include <cstring>
 

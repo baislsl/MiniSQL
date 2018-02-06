@@ -4,7 +4,7 @@
 #include <cfloat>
 #include "Type_value.h"
 #include "Util_exception.h"
-#include "../Interpreter/Interpreter_exception.h"
+#include "Interpreter_exception.h"
 
 Type_value::~Type_value() {}
 

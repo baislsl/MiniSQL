@@ -2,10 +2,10 @@
 // Created by baislsl on 17-5-26.
 //
 #include "test.h"
-#include "../MiniSQL/catalog/Catalog_manager.h"
-#include "../MiniSQL/util/Type_value.h"
-#include "../MiniSQL/Interpreter/Interpreter.h"
-#include "../MiniSQL/buffer/Buffer_manager.h"
+#include "Catalog_manager.h"
+#include "Type_value.h"
+#include "Interpreter.h"
+#include "Buffer_manager.h"
 #include <fstream>
 #include <iostream>
 
@@ -83,12 +83,12 @@ void type_value_test(){
 
 }
 
-//int main(){
-//   // type_value_test();
-//     intpre_test();
-////    std::string path = "gg.ind";
-////    ofstream out(path);
-////    int g = 10;
-////    out.write((char*)(&g), 3);
-////    out.close();
-//}
+int main(){
+   // type_value_test();
+     intpre_test();
+//    std::string path = "gg.ind";
+//    ofstream out(path);
+//    int g = 10;
+//    out.write((char*)(&g), 3);
+//    out.close();
+}

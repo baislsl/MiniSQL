@@ -3,7 +3,7 @@
 //
 
 #include "Condition.h"
-#include "../Interpreter/Interpreter_exception.h"
+#include "Interpreter_exception.h"
 
 
 bool Condition::match(const Type_value &value) {

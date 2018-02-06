@@ -3,7 +3,7 @@
 //
 
 #include "Type_info.h"
-#include "../Interpreter/Interpreter_exception.h"
+#include "Interpreter_exception.h"
 
 Type_info::Type_info() :_size(0), _type_name(Type_name::INT){}
 

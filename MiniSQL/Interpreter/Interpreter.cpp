@@ -2,10 +2,10 @@
 // Created by baislsl on 17-6-2.
 //
 #include "Interpreter.h"
-#include "../util/Type_info.h"
-#include "../util/Column.h"
-#include "../util/Condition.h"
-#include "../util/String_handler.h"
+#include "Type_info.h"
+#include "Column.h"
+#include "Condition.h"
+#include "String_handler.h"
 
 Interpreter::~Interpreter() {
 }

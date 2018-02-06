@@ -5,9 +5,9 @@
 #ifndef MINISQL_API_H
 #define MINISQL_API_H
 
-#include "../catalog/Catalog_manager.h"
-#include "../record/Record_manager.h"
-#include "../index/Index_manager.h"
+#include "Catalog_manager.h"
+#include "Record_manager.h"
+#include "Index_manager.h"
 class Table;
 class Result_set;
 class Index;

@@ -5,7 +5,7 @@
 #ifndef MINISQL_BP_NODE_H
 #define MINISQL_BP_NODE_H
 
-#include "../util/Type_value.h"
+#include "Type_value.h"
 struct Key {
     Type_value value;
     size_t index;
@@ -70,7 +70,6 @@ friend class BP_tree;
 public:
 
     BP_node() : size(0) {
-        std::cout << "t=" << t;
     }
 
     inline bool full() const {

@@ -8,8 +8,8 @@
 
 #include <vector>
 #include <string>
-#include "../buffer/Buffer_manager.h"
-#include "../util/Result_set.h"
+#include "Buffer_manager.h"
+#include "Result_set.h"
 
 class Condition;
 class Table;

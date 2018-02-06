@@ -6,8 +6,8 @@
 #include "Catalog_exception.h"
 #include <boost/foreach.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include "../util/Type_info.h"
-#include "../util/Column.h"
+#include "Type_info.h"
+#include "Column.h"
 
 
 Catalog_manager::Catalog_manager(const std::string &_filename) : filename(_filename) {

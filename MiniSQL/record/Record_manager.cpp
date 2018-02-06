@@ -4,13 +4,13 @@
 
 #include "Record_manager.h"
 #include "Record_exception.h"
-#include "../util/Type_info.h"
-#include "../util/Type_value.h"
-#include "../util/Condition.h"
-#include "../util/Table.h"
-#include "../util/Column.h"
-#include "../catalog/Catalog_exception.h"
-#include "../util/String_handler.h"
+#include "Type_info.h"
+#include "Type_value.h"
+#include "Condition.h"
+#include "Table.h"
+#include "Column.h"
+#include "Catalog_exception.h"
+#include "String_handler.h"
 
 Record_manager::Record_manager(Buffer_manager &_buffer_manager)
         : buffer_manager(_buffer_manager){

@@ -1,16 +1,16 @@
 //
 // Created by baislsl on 17-5-30.
 //
-#include "../catalog/Catalog_manager.h"
-#include "../record/Record_manager.h"
-#include "../util/Result_set.h"
-#include "../index/Index_manager.h"
-#include "../index/Index.h"
+#include "Catalog_manager.h"
+#include "Record_manager.h"
+#include "Result_set.h"
+#include "Index_manager.h"
+#include "Index.h"
 #include "API.h"
-#include "../catalog/Catalog_exception.h"
-#include "../util/Column.h"
-#include "../util/Type_value.h"
-#include "../util/Condition.h"
+#include "Catalog_exception.h"
+#include "Column.h"
+#include "Type_value.h"
+#include "Condition.h"
 
 
 API::API() : catalog("../Test/cata.xml"),

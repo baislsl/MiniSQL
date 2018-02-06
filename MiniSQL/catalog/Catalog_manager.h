@@ -5,8 +5,8 @@
 #ifndef MINISQL_CATALOG_MANAGER_H
 #define MINISQL_CATALOG_MANAGER_H
 
-#include "../util/Table.h"
-#include "../index/Index.h"
+#include "Table.h"
+#include "Index.h"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <map>
